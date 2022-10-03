@@ -114,11 +114,9 @@ class EditCntCmd(ACommand):
         cnt_name = self._params
         saved_cnt_name = ""
 
+        contact = self.data.get_record(cnt_name)
         if cnt_name != "_":
-            contact = self.data.get_contact(cnt_name)
             saved_cnt_name = contact.cnt_name.value.lower()
-        else:
-            contact = self.data.get_empty_contact()
 
         edt_record: dict = contact.fields_info
         for key, field in edt_record.items():
@@ -142,17 +140,17 @@ class EditCntCmd(ACommand):
                 setattr(contact, key,  field["class"](field["value"]))
 
         if saved_cnt_name != contact.cnt_name.value.lower():
-            if self.data.is_contact_exist(contact.cnt_name.value.lower()):
+            if self.data.is_record_exists(contact.cnt_name.value.lower()):
                 if self.interface.show_message(MsgType.confirm,
                                                f"Contact by name '{contact.cnt_name.value}' exists. Overwrite?"):
-                    self.data.del_contact(contact.cnt_name.value.lower())
+                    self.data.del_record(contact.cnt_name.value.lower())
                 else:
                     self.interface.show_message(MsgType.warning, "Editing was canceled.")
                     return
             if saved_cnt_name:
-                self.data.del_contact(saved_cnt_name)
+                self.data.del_record(saved_cnt_name)
 
-        self.interface.show_message(MsgType.info, self.data.set_contact(contact))
+        self.interface.show_message(MsgType.info, self.data.post_record(contact))
 
 
 class DelCntCmd(ACommand):
@@ -166,7 +164,7 @@ class DelCntCmd(ACommand):
 
     def __call__(self):
         cnt_name = self._params
-        self.interface.show_message(MsgType.info, self.data.del_contact(cnt_name))
+        self.interface.show_message(MsgType.info, self.data.del_record(cnt_name))
 
 
 class FindCntCmd(ACommand):
@@ -180,7 +178,7 @@ class FindCntCmd(ACommand):
 
     def __call__(self):
         search_str = self._params
-        contacts = self.data.find_contacts(search_str)
+        contacts = self.data.find_records(search_str)
 
         if contacts:
             contacts.insert(0, ["Name", "Phones", "Email", "Address", "Birthday"])
@@ -223,7 +221,7 @@ class AddNoteCmd(ACommand):
 
     def __call__(self):
         if self._params:
-            self.interface.show_message(MsgType.warning, self.data.add_note(self._params))
+            self.interface.show_message(MsgType.warning, self.data.add_record(self._params))
             return
 
         command = EditNoteCmd("-1")
@@ -244,7 +242,7 @@ class EditNoteCmd(ACommand):
     def __call__(self):
         if self._params == "-1":
             self._params = ""
-        note = self.data.get_note(self._params)
+        note = self.data.get_record(self._params)
 
         edt_record: dict = note.fields_info
         for key, field in edt_record.items():
@@ -267,7 +265,7 @@ class EditNoteCmd(ACommand):
             elif field["value"]:
                 setattr(note, key,  field["class"](field["value"]))
 
-        self.interface.show_message(MsgType.info, self.data.set_note(note))
+        self.interface.show_message(MsgType.info, self.data.post_record(note))
 
 
 class ShowNotesCmd(ACommand):
@@ -304,7 +302,7 @@ class DelNoteCmd(ACommand):
         return bool(params) and params.isdecimal()
 
     def __call__(self):
-        self.interface.show_message(MsgType.info, self.data.del_note(self._params))
+        self.interface.show_message(MsgType.info, self.data.del_record(self._params))
 
 
 class FindNoteCmd(ACommand):
@@ -318,7 +316,7 @@ class FindNoteCmd(ACommand):
 
     def __call__(self):
         search_str = self._params
-        notes = self.data.find_notes(search_str)
+        notes = self.data.find_records(search_str)
 
         if notes:
             notes.insert(0, ["Note id", "Note", "Tags"])

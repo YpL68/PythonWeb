@@ -6,6 +6,8 @@ from pathlib import Path
 from dateutil.parser import parse as date_parse, ParserError
 from dateutil.relativedelta import relativedelta
 
+from free_assist.abstraction.data import ABook, ARecord
+
 
 class Field:
     def __init__(self, value=None):
@@ -120,7 +122,7 @@ class Birthday(Field):
         return self.value.strftime("%d.%m.%Y") if self.value else ""
 
 
-class Record:
+class Record(ARecord):
     def __init__(self, cnt_name: Name, phone: Phone = None):
         self.cnt_name = cnt_name
         self.phones = [phone] if phone else []
@@ -154,7 +156,7 @@ class Record:
         return False
 
     @property
-    def fields_info(self) -> {}:
+    def fields_info(self) -> dict:
         return {"cnt_name": {"caption": "Name", "class": Name, "is_list": False, "is_required": True},
                 "phones": {"caption": "Phones", "class": Phone, "is_list": True, "is_required": False},
                 "email": {"caption": "Email", "class": Email, "is_list": False, "is_required": False},
@@ -162,7 +164,7 @@ class Record:
                 "birthday": {"caption": "Birthday", "class": Birthday, "is_list": False, "is_required": False}}
 
     @property
-    def values(self) -> []:
+    def values(self) -> list:
         return [self.cnt_name.value,
                 self.phone_list if self.phones else "",
                 self.email.value if self.email else "",
@@ -180,7 +182,7 @@ class Record:
         return "; ".join(tmp_list)
 
 
-class AddressBook:
+class AddressBook(ABook):
     print_page_size = -1
 
     def __init__(self):
@@ -191,31 +193,27 @@ class AddressBook:
     def __del__(self):
         self.__data.close()
 
-    def add_contact(self, name: str, phone: str = None) -> str:
+    def add_record(self, name: str, phone: str = None) -> str:
         if name.lower() in self.__data:
             raise ValueError(f"A contact named '{name}' already exists.")
         self[name] = Record(Name(name), Phone(phone) if phone else None)
         return f"Contact named '{self[name].cnt_name.value}' has been added to address book."
 
-    def del_contact(self, name: str) -> str:
+    def del_record(self, name: str) -> str:
         del self[name]
         return f"Contact named '{Name.sanitize_name(name)}' has been deleted from address book."
 
-    def get_contact(self, name: str) -> Record:
-        return self[name]
+    def get_record(self, name: str) -> Record:
+        return Record(Name("_")) if name == "_" else self[name]
 
-    def is_contact_exist(self, name: str) -> bool:
+    def is_record_exists(self, name: str) -> bool:
         return name.lower() in self.__data.keys()
 
-    @staticmethod
-    def get_empty_contact() -> Record:
-        return Record(Name("_"))
-
-    def set_contact(self, contact: Record) -> str:
+    def post_record(self, contact: Record) -> str:
         self[contact.cnt_name.value.lower()] = contact
         return f"Contact named '{contact.cnt_name.value}' has been saved to address book."
 
-    def find_contacts(self, search_str: str) -> list:
+    def find_records(self, search_str: str) -> list:
         if not search_str or len(search_str) < 2:
             raise ValueError("The search string cannot be shorter than 2 characters.")
 

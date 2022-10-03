@@ -7,7 +7,7 @@ class ACommand(ABC):
             self.name: str = name
             self._params = params if params else ""
             self.data_name = "none"
-            self.data = "none"
+            self.data = None
             self.interface = None
         else:
             raise ValueError(f"Wrong parameters for the command '{name}'")
