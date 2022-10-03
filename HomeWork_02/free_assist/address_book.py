@@ -6,8 +6,6 @@ from pathlib import Path
 from dateutil.parser import parse as date_parse, ParserError
 from dateutil.relativedelta import relativedelta
 
-# from free_assist.function import error_msg, warning_msg, info_msg
-
 
 class Field:
     def __init__(self, value=None):
