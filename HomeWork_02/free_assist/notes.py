@@ -1,8 +1,6 @@
 import shelve
 from pathlib import Path
 
-from free_assist.function import warning_msg, info_msg
-
 
 class Note:
     print_page_size = -1
@@ -15,6 +13,11 @@ class Note:
     @property
     def tag_list(self) -> str:
         return ' '.join(self.note_tags)
+
+    @property
+    def fields_info(self) -> {}:
+        return {"note_text": {"caption": "Note", "class": str, "is_list": False, "is_required": True},
+                "note_tags": {"caption": "Tags", "class": str, "is_list": True, "is_required": False}}
 
     @property
     def values(self) -> []:
@@ -54,11 +57,11 @@ class Notes:
     def add_note(self, note_text: str) -> str:
         note = Note(note_text)
         self[note.note_id] = note
-        return info_msg(f"Note by id {note.note_id} has been added to address book.")
+        return f"Note by id {note.note_id} has been added to address book."
 
     def del_note(self, note_id: str) -> str:
         del self[note_id]
-        return info_msg(f"Note by id {note_id} has been deleted from address book.")
+        return f"Note by id {note_id} has been deleted from address book."
 
     def get_note(self, note_id: str = None) -> Note:
         if note_id:
@@ -68,11 +71,11 @@ class Notes:
 
     def set_note(self, note: Note) -> str:
         self[note.note_id] = note
-        return info_msg(f"Note by id {note.note_id} has been saved to address book.")
+        return f"Note by id {note.note_id} has been saved to address book."
 
     def find_notes(self, search_str: str) -> list:
         if not search_str or len(search_str) < 2:
-            raise ValueError(warning_msg("The search string cannot be shorter than 2 characters."))
+            raise ValueError("The search string cannot be shorter than 2 characters.")
 
         find_notes = []
         search_str = search_str.strip().lower()
@@ -87,7 +90,7 @@ class Notes:
     def __getitem__(self, note_id: str) -> Note:
         result = self.__data.get(note_id)
         if not result:
-            raise ValueError(warning_msg(f"A note by id '{note_id}' not found."))
+            raise ValueError(f"A note by id '{note_id}' not found.")
         return result
 
     def __setitem__(self, note_id: str, note: Note):
@@ -97,13 +100,13 @@ class Notes:
         try:
             del self.__data[note_id]
         except KeyError:
-            raise KeyError(warning_msg(warning_msg(f"A note by id '{note_id}' not found.")))
+            raise KeyError(f"A note by id '{note_id}' not found.")
 
     def __iter__(self):
         self.__rec_counter = 0
         self.__len = len(self.__data)
         if not self.__len:
-            raise ValueError(warning_msg("No notes have been found."))
+            raise ValueError("No notes have been found.")
         if self.print_page_size == -1:
             self.print_page_size = self.__len
         self.__sorted_keys = (key for key in sorted(self.__data, key=lambda i: int(i)))

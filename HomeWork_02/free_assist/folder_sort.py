@@ -1,14 +1,14 @@
 import re
 from pathlib import Path
 
-from free_assist.function import normalize, error_msg
+from free_assist.function import normalize
 
 
 class FolderSorter:
     def __init__(self, folder_path: str):
         self.folder_path = Path(folder_path)
         if not (self.folder_path.exists() and self.folder_path.is_dir()):
-            raise ValueError(error_msg("Specified folder not found."))
+            raise ValueError("Specified folder not found.")
 
         self.file_types = {"images":        {"file_ext": (".JPEG", ".PNG", ".JPG", ".SVG"), "file_list": []},
                            "video":         {"file_ext": (".AVI", ".MP4", ".MOV", ".MKV"), "file_list": []},
@@ -30,7 +30,7 @@ class FolderSorter:
             file.replace(Path(self.folder_path, destination_folder, normalize(file.stem) + file.suffix))
             self.file_types[destination_folder]["file_list"].append(file.name)
         except OSError as err:
-            raise ValueError(error_msg(f"Error:\n{err}"))
+            raise ValueError(f"Error:\n{err}")
 
     def unknown_files_sorting(self, file: Path, destination_folder: str):
         try:
@@ -38,7 +38,7 @@ class FolderSorter:
             file.replace(Path(self.folder_path, destination_folder, file.name))
             self.file_types[destination_folder]["file_list"].append(file.name)
         except OSError as err:
-            raise ValueError(error_msg(f"Error:\n{err}"))
+            raise ValueError(f"Error:\n{err}")
 
     def file_action(self, file: Path):
         folder_name = self.file_ext_links.get(file.suffix.upper(), "unknown_files")
@@ -52,7 +52,7 @@ class FolderSorter:
             for folder in self.file_types.keys():
                 Path(self.folder_path, folder).mkdir(exist_ok=True)
         except OSError as err:
-            raise ValueError(error_msg(f"An error occurred when creating folders:\n{err}"))
+            raise ValueError(f"An error occurred when creating folders:\n{err}")
 
     def folder_sorting(self, path_dir: Path = None):
         if not path_dir:

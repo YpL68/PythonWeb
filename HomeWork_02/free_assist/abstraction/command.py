@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from free_assist.function import error_msg
 
 
 class ACommand(ABC):
@@ -7,9 +6,10 @@ class ACommand(ABC):
         if self.param_check(params):
             self.name: str = name
             self._params = params if params else ""
+            self.data_name = "none"
             self.interface = None
         else:
-            raise ValueError(error_msg(f"Wrong parameters for the command '{name}'"))
+            raise ValueError(f"Wrong parameters for the command '{name}'")
 
     @classmethod
     @abstractmethod

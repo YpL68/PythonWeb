@@ -24,47 +24,8 @@ def normalize(src_str: str) -> str:
     return "_".join(re.findall(r"\w+", src_str.translate(TRANS)))
 
 
-def is_valid_field(field_class, field_values: str, is_list: bool, is_required: bool = False) -> bool:
-    if is_required and not field_values:
-        return False
-
-    result = True
-    values = []
-    if is_list:
-        values = list(filter(lambda x: x != "", field_values.lower().split(" ")))
-    else:
-        field_values = field_values.strip()
-        if field_values:
-            values.append(field_values)
-    if values:
-        try:
-            _ = [field_class(field_value) for field_value in values]
-        except ValueError:
-            result = False
-    return result
-
-
 def highlight_str(src_str: str, text_color: str) -> str:
     return text_color + src_str + "\033[0;0m"
-
-
-def error_msg(message: str) -> str:
-    return highlight_str(message, ANSI_COLORS["red"])
-
-
-def warning_msg(message: str) -> str:
-    return highlight_str(message, ANSI_COLORS["yellow"])
-
-
-def info_msg(message: str) -> str:
-    return highlight_str(message, ANSI_COLORS["green"])
-
-
-def prompt_continuation(width, line_number, wrap_count):
-    if wrap_count > 0:
-        return " " * (width - 3) + "-> "
-    else:
-        return f"- {line_number+1} - ".rjust(width)
 
 
 def match_highlight(match_str: str):
