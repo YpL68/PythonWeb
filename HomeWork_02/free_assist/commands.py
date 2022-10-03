@@ -16,7 +16,6 @@ class MsgType(enum.Enum):
 class HelpCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="help", params=params)
-        self.data_name = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -51,7 +50,6 @@ class HelpCmd(ACommand):
 class CloseCmd(ACommand):
     def __init__(self, params: str = None):
         super().__init__(name="exit", params=params)
-        self.data_name = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -67,7 +65,6 @@ class ShowCntCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="show cnt", params=params)
         self.data_name = "address_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -92,7 +89,6 @@ class AddCntCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="add cnt", params=params)
         self.data_name = "address_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -109,7 +105,6 @@ class EditCntCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="edit cnt", params=params)
         self.data_name = "address_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -164,7 +159,6 @@ class DelCntCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="del cnt", params=params)
         self.data_name = "address_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -179,7 +173,6 @@ class FindCntCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="find cnt", params=params)
         self.data_name = "address_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -200,7 +193,6 @@ class BirthdayList(ACommand):
     def __init__(self, params: str):
         super().__init__(name="birth list", params=params)
         self.data_name = "address_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -224,7 +216,6 @@ class AddNoteCmd(ACommand):
     def __init__(self, params):
         super().__init__(name="add note", params=params)
         self.data_name = "note_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -245,7 +236,6 @@ class EditNoteCmd(ACommand):
     def __init__(self, params):
         super().__init__(name="edit note", params=params)
         self.data_name = "note_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -284,7 +274,6 @@ class ShowNotesCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="show notes", params=params)
         self.data_name = "note_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -309,7 +298,6 @@ class DelNoteCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="del note", params=params)
         self.data_name = "note_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -323,7 +311,6 @@ class FindNoteCmd(ACommand):
     def __init__(self, params: str):
         super().__init__(name="find note", params=params)
         self.data_name = "note_book"
-        self.data = None
 
     @classmethod
     def param_check(cls, params: str):
@@ -341,11 +328,8 @@ class FindNoteCmd(ACommand):
 
 
 class FolderSorting(ACommand):
-    data_name = "none"
-
     def __init__(self, params: str):
         super().__init__(name="folder sort", params=params)
-        self.data_name = "none"
 
     @classmethod
     def param_check(cls, params: str):
