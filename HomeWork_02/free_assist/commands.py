@@ -152,7 +152,8 @@ class EditCntCmd(ACommand):
                                                f"Contact by name '{contact.cnt_name.value}' exists. Overwrite?"):
                     self.data.del_contact(contact.cnt_name.value.lower())
                 else:
-                    self.interface.show_message(MsgType.warning, "Editing was canceled by the user")
+                    self.interface.show_message(MsgType.warning, "Editing was canceled.")
+                    return
             if saved_cnt_name:
                 self.data.del_contact(saved_cnt_name)
 
@@ -203,7 +204,7 @@ class BirthdayList(ACommand):
 
     @classmethod
     def param_check(cls, params: str):
-        return len(params.split(" ")) == 1
+        return bool(params) and params.isdecimal()
 
     def __call__(self):
         try:
@@ -348,7 +349,7 @@ class FolderSorting(ACommand):
 
     @classmethod
     def param_check(cls, params: str):
-        return len(params.split(" ")) == 1
+        return bool(len(params))
 
     def __call__(self):
         sorter = FolderSorter(self._params)
