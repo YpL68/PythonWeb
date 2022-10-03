@@ -1,8 +1,9 @@
 import shelve
 from pathlib import Path
+from free_assist.abstraction.data import ABook, ARecord
 
 
-class Note:
+class Note(ARecord):
     print_page_size = -1
 
     def __init__(self, note_text: str = "", note_tags: list = None):
@@ -15,7 +16,7 @@ class Note:
         return ' '.join(self.note_tags)
 
     @property
-    def fields_info(self) -> {}:
+    def fields_info(self) -> dict:
         return {"note_text": {"caption": "Note", "class": str, "is_list": False, "is_required": True},
                 "note_tags": {"caption": "Tags", "class": str, "is_list": True, "is_required": False}}
 
@@ -30,7 +31,7 @@ class Note:
         return False
 
 
-class Notes:
+class Notes(ABook):
     __max_note_id = 0
 
     def __init__(self):
@@ -54,26 +55,26 @@ class Notes:
     def set_max_note_id(cls, value):
         cls.__max_note_id = value
 
-    def add_note(self, note_text: str) -> str:
+    def add_record(self, note_text: str) -> str:
         note = Note(note_text)
         self[note.note_id] = note
         return f"Note by id {note.note_id} has been added to address book."
 
-    def del_note(self, note_id: str) -> str:
+    def del_record(self, note_id: str) -> str:
         del self[note_id]
         return f"Note by id {note_id} has been deleted from address book."
 
-    def get_note(self, note_id: str = None) -> Note:
+    def get_record(self, note_id: str = None) -> Note:
         if note_id:
             return self[note_id]
         else:
             return Note()
 
-    def set_note(self, note: Note) -> str:
+    def post_record(self, note: Note) -> str:
         self[note.note_id] = note
         return f"Note by id {note.note_id} has been saved to address book."
 
-    def find_notes(self, search_str: str) -> list:
+    def find_records(self, search_str: str) -> list:
         if not search_str or len(search_str) < 2:
             raise ValueError("The search string cannot be shorter than 2 characters.")
 
@@ -83,6 +84,9 @@ class Notes:
             if note.match_search_str(search_str):
                 find_notes.append(note.values)
         return find_notes
+
+    def is_record_exists(self, *args, **kwargs) -> bool:
+        pass
 
     def __len__(self):
         return len(self.__data)
