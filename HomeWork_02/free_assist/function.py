@@ -20,6 +20,10 @@ for c, l in zip(CYRILLIC_SYMBOLS, TRANSLATION):
 TRANS_KEYS = {ord(c): l for c, l in zip(CYRILLIC_KEYS, TRANSLATION_KEYS)}
 
 
+class RecordExists(Exception):
+    pass
+
+
 def normalize(src_str: str) -> str:
     return "_".join(re.findall(r"\w+", src_str.translate(TRANS)))
 

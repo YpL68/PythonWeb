@@ -4,6 +4,7 @@ import enum
 
 from free_assist.abstraction.command import ACommand
 from free_assist.folder_sort import FolderSorter
+from free_assist.function import RecordExists
 
 
 class MsgType(enum.Enum):
@@ -111,46 +112,26 @@ class EditCntCmd(ACommand):
         return len(params)
 
     def __call__(self):
-        cnt_name = self._params
-        saved_cnt_name = ""
+        if self._params == "_":
+            old_key_value = ""
+        else:
+            old_key_value = self._params.lower()
 
-        contact = self.data.get_record(cnt_name)
-        if cnt_name != "_":
-            saved_cnt_name = contact.cnt_name.value.lower()
-
-        edt_record: dict = contact.fields_info
-        for key, field in edt_record.items():
-            field_instance = getattr(contact, key, None)
-            if field_instance:
-                if field["is_list"]:
-                    field["value"] = " ".join(str(fld) for fld in field_instance)
-                else:
-                    field["value"] = str(field_instance) if str(field_instance) != "_" else ""
+        contact = self.data.get_record_view(old_key_value)
+        contact.pop("key_value")
+        self.interface.edit_data_record(contact)
+        contact["key_value"] = {"value": old_key_value}
+        try:
+            result = self.data.post_from_record_view(contact)
+        except RecordExists as err:
+            if self.interface.show_message(MsgType.confirm,
+                                           f"Contact by name '{err}' exists. Overwrite?"):
+                result = self.data.post_from_record_view(contact, True)
             else:
-                field["value"] = ""
+                self.interface.show_message(MsgType.warning, "Editing was canceled.")
+                return
 
-        self.interface.edit_data_record(edt_record)
-
-        for key, field in edt_record.items():
-            if field["is_list"]:
-                list_result = list(filter(lambda x: x != "", field["value"].strip().split(" ")))
-                list_inst = [field["class"](itm) for itm in list_result]
-                setattr(contact, key, list_inst)
-            elif field["value"]:
-                setattr(contact, key,  field["class"](field["value"]))
-
-        if saved_cnt_name != contact.cnt_name.value.lower():
-            if self.data.is_record_exists(contact.cnt_name.value.lower()):
-                if self.interface.show_message(MsgType.confirm,
-                                               f"Contact by name '{contact.cnt_name.value}' exists. Overwrite?"):
-                    self.data.del_record(contact.cnt_name.value.lower())
-                else:
-                    self.interface.show_message(MsgType.warning, "Editing was canceled.")
-                    return
-            if saved_cnt_name:
-                self.data.del_record(saved_cnt_name)
-
-        self.interface.show_message(MsgType.info, self.data.post_record(contact))
+        self.interface.show_message(MsgType.info, result)
 
 
 class DelCntCmd(ACommand):
@@ -241,31 +222,17 @@ class EditNoteCmd(ACommand):
 
     def __call__(self):
         if self._params == "-1":
-            self._params = ""
-        note = self.data.get_record(self._params)
+            old_key_value = ""
+        else:
+            old_key_value = self._params
 
-        edt_record: dict = note.fields_info
-        for key, field in edt_record.items():
-            field_instance = getattr(note, key, None)
-            if field_instance:
-                if field["is_list"]:
-                    field["value"] = " ".join(str(fld) for fld in field_instance)
-                else:
-                    field["value"] = str(field_instance)
-            else:
-                field["value"] = ""
+        note = self.data.get_record_view(old_key_value)
+        note.pop("key_value")
+        self.interface.edit_data_record(note)
+        note["key_value"] = {"value": old_key_value}
 
-        self.interface.edit_data_record(edt_record)
-
-        for key, field in edt_record.items():
-            if field["is_list"]:
-                list_result = list(filter(lambda x: x != "", field["value"].strip().split(" ")))
-                list_inst = [field["class"](itm) for itm in list_result]
-                setattr(note, key, list_inst)
-            elif field["value"]:
-                setattr(note, key,  field["class"](field["value"]))
-
-        self.interface.show_message(MsgType.info, self.data.post_record(note))
+        result = self.data.post_from_record_view(note)
+        self.interface.show_message(MsgType.info, result)
 
 
 class ShowNotesCmd(ACommand):

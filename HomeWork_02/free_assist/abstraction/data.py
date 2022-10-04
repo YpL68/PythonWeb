@@ -2,9 +2,9 @@ from abc import ABC, abstractmethod
 
 
 class ARecord(ABC):
-    @property
+    @classmethod
     @abstractmethod
-    def fields_info(self) -> dict:
+    def data_view(cls, *args, **kwargs) -> dict:
         pass
 
     @property
@@ -36,6 +36,14 @@ class ABook(ABC):
 
     @abstractmethod
     def post_record(self, *args, **kwargs) -> str:
+        pass
+
+    @abstractmethod
+    def get_record_view(self, *args, **kwargs) -> dict:
+        pass
+
+    @abstractmethod
+    def post_from_record_view(self, *args, **kwargs) -> str:
         pass
 
     @abstractmethod

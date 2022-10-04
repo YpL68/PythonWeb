@@ -7,6 +7,7 @@ from dateutil.parser import parse as date_parse, ParserError
 from dateutil.relativedelta import relativedelta
 
 from free_assist.abstraction.data import ABook, ARecord
+from free_assist.function import RecordExists
 
 
 class Field:
@@ -155,6 +156,20 @@ class Record(ARecord):
                 return True
         return False
 
+    @classmethod
+    def data_view(cls, record) -> dict:
+        return {"key_value": {"value": record.cnt_name.value.lower() if record else ""},
+                "cnt_name": {"caption": "Name", "class": Name, "is_list": False, "is_required": True,
+                             "value": record.cnt_name.value if record else ""},
+                "phones": {"caption": "Phones", "class": Phone, "is_list": True, "is_required": False,
+                           "value": record.phone_list if record and record.phone_list else ""},
+                "email": {"caption": "Email", "class": Email, "is_list": False, "is_required": False,
+                          "value": record.email.value if record and record.email else ""},
+                "address": {"caption": "Address", "class": Address, "is_list": False, "is_required": False,
+                            "value": record.address.value if record and record.address else ""},
+                "birthday": {"caption": "Birthday", "class": Birthday, "is_list": False, "is_required": False,
+                             "value": str(record.birthday) if record and record.birthday else ""}}
+
     @property
     def fields_info(self) -> dict:
         return {"cnt_name": {"caption": "Name", "class": Name, "is_list": False, "is_required": True},
@@ -205,6 +220,34 @@ class AddressBook(ABook):
 
     def get_record(self, name: str) -> Record:
         return Record(Name("_")) if name == "_" else self[name]
+
+    def get_record_view(self, name: str) -> dict:
+        return Record.data_view(self[name] if name else None)
+
+    def post_from_record_view(self, record_view: dict, overwrite=False) -> str:
+        old_key_value = record_view["key_value"]["value"]
+        new_key_value = record_view["cnt_name"]["value"].lower()
+
+        if not overwrite:
+            if new_key_value != old_key_value and new_key_value in self.__data:
+                raise RecordExists(record_view["cnt_name"]["value"])
+
+        contact = Record(Name("_"))
+
+        record_view.pop("key_value")
+        for key, field in record_view.items():
+            if field["is_list"]:
+                list_result = list(filter(lambda x: x != "", field["value"].strip().split(" ")))
+                list_inst = [field["class"](itm) for itm in list_result]
+                setattr(contact, key, list_inst)
+            elif field["value"]:
+                setattr(contact, key, field["class"](field["value"]))
+
+            self[new_key_value] = contact
+            if old_key_value != new_key_value and old_key_value in self.__data:
+                del self[old_key_value]
+
+        return f"Contact named '{contact.cnt_name.value}' has been saved to address book."
 
     def is_record_exists(self, name: str) -> bool:
         return name.lower() in self.__data.keys()
