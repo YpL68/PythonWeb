@@ -171,14 +171,6 @@ class Record(ARecord):
                              "value": str(record.birthday) if record and record.birthday else ""}}
 
     @property
-    def fields_info(self) -> dict:
-        return {"cnt_name": {"caption": "Name", "class": Name, "is_list": False, "is_required": True},
-                "phones": {"caption": "Phones", "class": Phone, "is_list": True, "is_required": False},
-                "email": {"caption": "Email", "class": Email, "is_list": False, "is_required": False},
-                "address": {"caption": "Address", "class": Address, "is_list": False, "is_required": False},
-                "birthday": {"caption": "Birthday", "class": Birthday, "is_list": False, "is_required": False}}
-
-    @property
     def values(self) -> list:
         return [self.cnt_name.value,
                 self.phone_list if self.phones else "",
