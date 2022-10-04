@@ -24,11 +24,6 @@ class Note(ARecord):
         return ' '.join(self.note_tags)
 
     @property
-    def fields_info(self) -> dict:
-        return {"note_text": {"caption": "Note", "class": str, "is_list": False, "is_required": True},
-                "note_tags": {"caption": "Tags", "class": str, "is_list": True, "is_required": False}}
-
-    @property
     def values(self) -> []:
         return [self.note_id, self.note_text, self.tag_list if self.note_tags else ""]
 
