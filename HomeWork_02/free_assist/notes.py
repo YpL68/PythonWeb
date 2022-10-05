@@ -145,7 +145,7 @@ class Notes(ABook):
                 self.__rec_counter += 1
                 key = next(self.__sorted_keys)
                 out_list.append(self.__data[key].values)
-            if self.add_field_headers:
+            if self.add_field_headers and out_list:
                 out_list.insert(0, ["Note id", "Note", "Tags"])
             return out_list
         else:
