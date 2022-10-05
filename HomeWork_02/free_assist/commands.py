@@ -74,10 +74,9 @@ class ShowCntCmd(ACommand):
     def __call__(self):
         page_output = bool(self._params)
         self.data.print_page_size = int(self._params) if page_output else -1
-
+        self.data.add_field_headers = True
         try:
             for contacts in self.data:
-                contacts.insert(0, ["Name", "Phones", "Email", "Address", "Birthday"])
                 self.interface.show_table_view(contacts)
                 if page_output:
                     if not self.interface.show_message(MsgType.confirm, "Continue?"):
@@ -247,10 +246,9 @@ class ShowNotesCmd(ACommand):
     def __call__(self):
         page_output = bool(self._params)
         self.data.print_page_size = int(self._params) if page_output else -1
-
+        self.data.add_field_headers = True
         try:
             for items in self.data:
-                items.insert(0, ["Note id", "Note", "Tags"])
                 self.interface.show_table_view(items)
                 if page_output:
                     if not self.interface.show_message(MsgType.confirm, "Continue?"):
