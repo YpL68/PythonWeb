@@ -4,8 +4,6 @@ from free_assist.abstraction.data import ABook, ARecord
 
 
 class Note(ARecord):
-    print_page_size = -1
-
     def __init__(self, note_text: str = "", note_tags: list = None):
         self.note_id = str(Notes.get_max_note_id())
         self.note_text = note_text
@@ -24,7 +22,7 @@ class Note(ARecord):
         return ' '.join(self.note_tags)
 
     @property
-    def values(self) -> []:
+    def values(self) -> list:
         return [self.note_id, self.note_text, self.tag_list if self.note_tags else ""]
 
     def match_search_str(self, search_str: str):
@@ -133,6 +131,8 @@ class Notes(ABook):
         self.__len = len(self.__data)
         if not self.__len:
             raise ValueError("No notes have been found.")
+        self.print_page_size = getattr(self, "print_page_size", -1)
+        self.add_field_headers = getattr(self, "add_field_headers", False)
         if self.print_page_size == -1:
             self.print_page_size = self.__len
         self.__sorted_keys = (key for key in sorted(self.__data, key=lambda i: int(i)))
@@ -145,6 +145,8 @@ class Notes(ABook):
                 self.__rec_counter += 1
                 key = next(self.__sorted_keys)
                 out_list.append(self.__data[key].values)
+            if self.add_field_headers:
+                out_list.insert(0, ["Note id", "Note", "Tags"])
             return out_list
         else:
             raise StopIteration

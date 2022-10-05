@@ -190,8 +190,6 @@ class Record(ARecord):
 
 
 class AddressBook(ABook):
-    print_page_size = -1
-
     def __init__(self):
         data_path = Path(Path(Path.home(), "FreeAssistData"))
         data_path.mkdir(exist_ok=True)
@@ -289,6 +287,9 @@ class AddressBook(ABook):
         self.__len = len(self.__data)
         if not self.__len:
             raise ValueError("No contacts have been found.")
+
+        self.print_page_size = getattr(self, "print_page_size", -1)
+        self.add_field_headers = getattr(self, "add_field_headers", False)
         if self.print_page_size == -1:
             self.print_page_size = self.__len
         self.__sorted_keys = (key for key in sorted(self.__data))
@@ -301,6 +302,8 @@ class AddressBook(ABook):
                 self.__rec_counter += 1
                 key = next(self.__sorted_keys)
                 out_list.append(self.__data[key].values)
+            if self.add_field_headers:
+                out_list.insert(0, ["Name", "Phones", "Email", "Address", "Birthday"])
             return out_list
         else:
             raise StopIteration
