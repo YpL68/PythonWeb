@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "free-assist"
+version = "0.1.0"
+description = ""
+authors = ["YpL68 <yuriy.plks@gmail.com>"]
+readme = "README.md"
+packages = [{include = "free_assist"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+prompt-toolkit = "^3.0.31"
+python-dateutil = "^2.8.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
