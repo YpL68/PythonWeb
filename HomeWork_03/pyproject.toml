@@ -11,6 +11,9 @@ python = "^3.8"
 prompt-toolkit = "^3.0.31"
 python-dateutil = "^2.8.2"
 
+[tool.poetry.scripts]
+free-assist = "free_assist.main:main"
+
 
 [build-system]
 requires = ["poetry-core"]

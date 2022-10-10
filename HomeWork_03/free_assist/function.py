@@ -48,7 +48,7 @@ def match_highlight(match_str: str):
 def easy_table(data, cell_sep=' | ', header_separator=True, highlight_math="") -> str:
     rows = len(data)
     cols = len(data[0])
-    max_area_width = 80 - cols * 3
+    max_area_width = 100 - cols * 3
     col_max_width = int(max_area_width / cols)
     out_list = []
 
