@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "homework-04"
+version = "0.1.0"
+description = ""
+authors = ["YpL68 <yuriy.plks@gmail.com>"]
+readme = "README.md"
+packages = [{include = "homework_04"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
