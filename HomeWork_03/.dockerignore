@@ -1,6 +1,6 @@
 .idea
 .venv
-.tests
+tests
 poetry.lock
 pyproject.toml
 README.md
