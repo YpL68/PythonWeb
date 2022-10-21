@@ -12,7 +12,7 @@ class FolderSorter:
                              "video": {"file_ext": (".AVI", ".MP4", ".MOV", ".MKV")},
                              "documents": {"file_ext": (".DOC", ".DOCX", ".TXT", ".PDF", ".XLSX", ".PPTX")},
                              "audio": {"file_ext": (".MP3", ".OGG", ".WAV", ".AMR")},
-                             "archives": {"file_ext": (".ZIP", ".GZ", ".TAR")},
+                             "archives": {"file_ext": (".ZIP", ".GZ", ".TAR", ".RAR")},
                              "unknown_files": {"file_ext": ()}}
 
         self.__file_ext_links = {file_ext: folder for folder, params in self.__file_types.items()
@@ -43,6 +43,16 @@ class FolderSorter:
                 Path(self.__folder, folder).mkdir(exist_ok=True)
         except (OSError, PermissionError) as err:
             raise ValueError(f"An error occurred when creating folders:\n{err}")
+
+    def __get_sub_folders(self, _folder: Path) -> list:
+        try:
+            if self.__folder == _folder:
+                return [item for item in _folder.iterdir()
+                        if item.is_dir() and item.name not in self.__file_types.keys()]
+            else:
+                return [item for item in _folder.iterdir() if item.is_dir()]
+        except (OSError, PermissionError) as err:
+            raise ValueError(f"Error:\n{err}")
 
     def __folder_handler(self, folder: Path):
         file_list = [item for item in folder.iterdir() if not item.is_dir()]
@@ -84,16 +94,10 @@ class FolderSorter:
                 executor.map(self.__folder_handler, layer_folders)
             processed_folders_stack.insert(0, layer_folders)
 
-        for layer_folders in processed_folders_stack:  # deleting empty folders
+        # deleting empty folders
+        for layer_folders in processed_folders_stack:
             with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
                 executor.map(self.__delete_empty_folder, layer_folders)
-
-    @staticmethod
-    def __get_sub_folders(_folder: Path) -> list:
-        try:
-            return [item for item in _folder.iterdir() if item.is_dir()]
-        except (OSError, PermissionError) as err:
-            raise ValueError(f"Error:\n{err}")
 
     @staticmethod
     def __delete_empty_folder(_folder: Path):
@@ -105,5 +109,5 @@ class FolderSorter:
 
 
 if __name__ == '__main__':
-    sorter = FolderSorter(r"f:\PythonPrj\Test_Opachki")
+    sorter = FolderSorter(r"f:\PythonPrj\Test1")
     sorter.run()
