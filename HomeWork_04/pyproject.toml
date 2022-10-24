@@ -4,7 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["YpL68 <yuriy.plks@gmail.com>"]
 readme = "README.md"
-packages = [{include = "homework_04"}]
+packages = [{include = "sort_folder"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
