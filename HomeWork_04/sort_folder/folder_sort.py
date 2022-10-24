@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 import concurrent.futures
 
@@ -32,17 +33,19 @@ class FolderSorter:
 
     def __file_action(self, file: Path):
         folder_name = self.__file_ext_links.get(file.suffix.upper(), "unknown_files")
+        new_file = Path(self.__folder, folder_name, file.name)
         try:
-            file.replace(Path(self.__folder, folder_name, file.name))
+            if not new_file.exists():
+                file.replace(new_file)
         except (OSError, PermissionError) as err:
-            raise ValueError(f"Error:\n{err}")
+            logging.error(f"An error occurred when copy file {file}:\n{err}")
 
     def __base_folders_create(self):
         try:
             for folder in self.__file_types.keys():
                 Path(self.__folder, folder).mkdir(exist_ok=True)
         except (OSError, PermissionError) as err:
-            raise ValueError(f"An error occurred when creating folders:\n{err}")
+            logging.error(f"An error occurred when creating base folders:\n{err}")
 
     def __get_sub_folders(self, _folder: Path) -> list:
         try:
@@ -52,7 +55,7 @@ class FolderSorter:
             else:
                 return [item for item in _folder.iterdir() if item.is_dir()]
         except (OSError, PermissionError) as err:
-            raise ValueError(f"Error:\n{err}")
+            logging.error(f"An error occurred when receiving subfolders:\n{err}")
 
     def __folder_handler(self, folder: Path):
         file_list = [item for item in folder.iterdir() if not item.is_dir()]
@@ -105,9 +108,4 @@ class FolderSorter:
             try:
                 _folder.rmdir()
             except (OSError, PermissionError) as err:
-                raise ValueError(f"An error occurred when deleting folder:\n{err}")
-
-
-if __name__ == '__main__':
-    sorter = FolderSorter(r"f:\PythonPrj\Test1")
-    sorter.run()
+                logging.error(f"An error occurred when deleting folder {_folder}:\n{err}")
