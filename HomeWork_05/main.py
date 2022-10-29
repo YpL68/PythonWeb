@@ -21,13 +21,13 @@ def factorize_pool(number_list: list) -> list:
 
 def factor(num) -> list:
     result = []
-    divider = 1
-    while divider * divider <= num:
-        if num % divider == 0:
-            result.append(divider)
-            if divider != num // divider:
-                result.append(num // divider)
-        divider += 1
+    divisor = 1
+    while divisor * divisor <= num:
+        if num % divisor == 0:
+            result.append(divisor)
+            if divisor != num // divisor:
+                result.append(num // divisor)
+        divisor += 1
     result.sort()
     return result
 
