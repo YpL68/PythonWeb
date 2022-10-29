@@ -1,6 +1,7 @@
 from os import cpu_count
 from concurrent.futures import ProcessPoolExecutor
 from multiprocessing import Pool
+from time import time
 
 
 def factorize(number_list: list) -> list:
@@ -33,7 +34,21 @@ def factor(num) -> list:
 
 
 def main():
-    num_list = [256, 128]
-    print(factorize(num_list))
-    print(factorize_futures(num_list))
-    print(factorize_pool(num_list))
+    # num_list = [128, 255, 99999, 10651060]
+    num_list = [1283244343436, 2554565464778, 9999976761212, 4657465856767, 9267647567]
+
+    t_start = time()
+    factorize(num_list)
+    print(f"Syn time - {time() - t_start}")
+
+    t_start = time()
+    factorize_futures(num_list)
+    print(f"Futures time - {time() - t_start}")
+
+    t_start = time()
+    factorize_pool(num_list)
+    print(f"Pool time - {time() - t_start}")
+
+
+if __name__ == '__main__':
+    main()
