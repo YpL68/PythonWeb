@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "homework-06"
+version = "0.1.0"
+description = ""
+authors = ["YpL68 <yuriy.plks@gmail.com>"]
+readme = "README.md"
+packages = [{include = "homework_06"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+aiopath = "^0.6.11"
+aioshutil = "^1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
