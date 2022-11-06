@@ -9,12 +9,12 @@ async def a_read_folder(path: AsyncPath) -> None:
     async for el in path.iterdir():
         if await el.is_dir():
             await asyncio.sleep(0.1)
-            print(el.name)
+            # print(el.name)
 
 
 async def main():
     print("Start main")
-    cor = [a_read_folder(AsyncPath(r"c:\PythonPrj\TestFolder")) for _ in range(10)]
+    cor = [a_read_folder(AsyncPath(r"c:\PythonPrj\TestFolder")) for _ in range(1000)]
     tasks = [asyncio.create_task(c) for c in cor]
     [await t for t in tasks]
 
