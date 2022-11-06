@@ -2,6 +2,11 @@ import logging
 from pathlib import Path
 import concurrent.futures
 
+import asyncio
+
+from aiopath import AsyncPath
+from aioshutil import copyfile
+
 MAX_WORKERS = 4
 
 
