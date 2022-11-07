@@ -1,4 +1,6 @@
 import argparse
+import asyncio
+
 from sort_folder.folder_sort import FolderSorter
 
 
@@ -11,7 +13,7 @@ def main():
     source_folder = args.get("source")
 
     sorter = FolderSorter(source_folder)
-    sorter.run()
+    asyncio.run(sorter.run())
 
 
 if __name__ == '__main__':

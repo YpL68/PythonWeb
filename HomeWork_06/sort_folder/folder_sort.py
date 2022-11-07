@@ -3,9 +3,7 @@ from pathlib import Path
 import concurrent.futures
 
 import asyncio
-
 from aiopath import AsyncPath
-from aioshutil import copyfile
 
 MAX_WORKERS = 4
 
@@ -36,81 +34,84 @@ class FolderSorter:
         if not (self.__folder.exists() and self.__folder.is_dir()):
             raise ValueError("Specified folder not found.")
 
-    def __file_action(self, file: Path):
+    async def __file_action(self, file: AsyncPath):
         folder_name = self.__file_ext_links.get(file.suffix.upper(), "unknown_files")
-        new_file = Path(self.__folder, folder_name, file.name)
+        new_file = AsyncPath(self.__folder, folder_name, file.name)
         try:
-            if not new_file.exists():
-                file.replace(new_file)
+            if not await new_file.exists():
+                await file.replace(new_file)
         except (OSError, PermissionError) as err:
             logging.error(f"An error occurred when copy file {file}:\n{err}")
 
-    def __base_folders_create(self):
-        try:
-            for folder in self.__file_types.keys():
-                Path(self.__folder, folder).mkdir(exist_ok=True)
-        except (OSError, PermissionError) as err:
-            logging.error(f"An error occurred when creating base folders:\n{err}")
+    async def __base_folders_create(self):
+        cors = [AsyncPath(self.__folder, folder).mkdir(exist_ok=True)
+                for folder in self.__file_types.keys()]
+        tasks = []
+        for item in cors:
+            try:
+                tasks.append(asyncio.create_task(item))
+            except (OSError, PermissionError) as err:
+                logging.error(f"An error occurred when creating base folder:\n{err}")
+        [await task for task in tasks]
 
-    def __get_sub_folders(self, _folder: Path) -> list:
+    async def __get_sub_folders(self, _folder: AsyncPath) -> list:
         try:
-            if self.__folder == _folder:
-                return [item for item in _folder.iterdir()
-                        if item.is_dir() and item.name not in self.__file_types.keys()]
+            if AsyncPath(self.folder) == _folder:
+                return [item async for item in _folder.iterdir()
+                        if await item.is_dir() and item.name not in self.__file_types.keys()]
             else:
-                return [item for item in _folder.iterdir() if item.is_dir()]
+                return [item async for item in _folder.iterdir() if await item.is_dir()]
         except (OSError, PermissionError) as err:
-            logging.error(f"An error occurred when receiving subfolders:\n{err}")
+            logging.error(f"An error occurred when receiving sub folders:\n{err}")
 
-    def __folder_handler(self, folder: Path):
-        file_list = [item for item in folder.iterdir() if not item.is_dir()]
+    async def __folder_handler(self, folder: AsyncPath):
+        file_list = [item async for item in folder.iterdir() if not await item.is_dir()]
 
         if file_list:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                executor.map(self.__file_action, file_list)
+            cors = [self.__file_action(file) for file in file_list]
+            tasks = [asyncio.create_task(item) for item in cors]
+            [await task for task in tasks]
 
-    def __sub_folders_layer(self):
-        list_folders = [self.__folder]
+    @staticmethod
+    async def __sub_folders_layer(path: AsyncPath) -> list:
+        return [item async for item in path.iterdir() if await item.is_dir()]
 
-        def inner_layer() -> list:
-            nonlocal list_folders
-            with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                results = list(executor.map(self.__get_sub_folders, list_folders))
-            list_folders = [folder for _folder_list in results for folder in _folder_list]
-            return list_folders
+    async def __get_all_folders(self):  # recursion free !!!
+        yield [AsyncPath(self.folder)]
 
-        return inner_layer
+        results = [item async for item in AsyncPath(self.folder).iterdir()
+                   if await item.is_dir() and item.name not in self.__file_types.keys()]
+        yield results
 
-    def __get_all_folders(self) -> list:  # recursion free !!!
-        folders_layer = self.__sub_folders_layer()
-        layer_folders = [self.__folder]
-        layer_folders.extend(folders_layer())
-        yield layer_folders
+        while results:
+            cors = [self.__sub_folders_layer(folder) for folder in results]
+            result = await asyncio.gather(*cors)
+            results = [folder for _folder_list in result for folder in _folder_list]
+            if results:
+                yield results
 
-        while layer_folders:
-            layer_folders = folders_layer()
-            if layer_folders:
-                yield layer_folders
-
-    def run(self):
+    async def run(self):
         processed_folders_stack = []
 
-        self.__base_folders_create()
+        await self.__base_folders_create()
 
-        for layer_folders in self.__get_all_folders():  # folder layer processing with threads
-            with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                executor.map(self.__folder_handler, layer_folders)
+        async for layer_folders in self.__get_all_folders():
+            cors = [self.__folder_handler(folder) for folder in layer_folders]
+            tasks = [asyncio.create_task(item) for item in cors]
+            [await task for task in tasks]
+
             processed_folders_stack.insert(0, layer_folders)
 
         # deleting empty folders
         for layer_folders in processed_folders_stack:
-            with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-                executor.map(self.__delete_empty_folder, layer_folders)
+            cors = [self.__delete_empty_folder(folder) for folder in layer_folders]
+            tasks = [asyncio.create_task(item) for item in cors]
+            [await task for task in tasks]
 
     @staticmethod
-    def __delete_empty_folder(_folder: Path):
-        if not (any(_folder.iterdir())):
+    async def __delete_empty_folder(_folder: AsyncPath):
+        if not [item async for item in _folder.iterdir()]:
             try:
-                _folder.rmdir()
+                await _folder.rmdir()
             except (OSError, PermissionError) as err:
                 logging.error(f"An error occurred when deleting folder {_folder}:\n{err}")
