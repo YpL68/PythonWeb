@@ -1,11 +1,8 @@
 import logging
-from pathlib import Path
-import concurrent.futures
-
 import asyncio
 from aiopath import AsyncPath
-
-MAX_WORKERS = 4
+from pathlib import Path
+from time import time
 
 
 class FolderSorter:
@@ -30,13 +27,14 @@ class FolderSorter:
     def folder(self, folder_path: str):
         if not folder_path.strip():
             raise ValueError("Specify a folder for sorting.")
-        self.__folder = Path(folder_path)
-        if not (self.__folder.exists() and self.__folder.is_dir()):
+        if not (Path(folder_path).exists() and Path(folder_path).is_dir()):
             raise ValueError("Specified folder not found.")
+        self.__folder = AsyncPath(folder_path)
 
     async def __file_action(self, file: AsyncPath):
         folder_name = self.__file_ext_links.get(file.suffix.upper(), "unknown_files")
         new_file = AsyncPath(self.__folder, folder_name, file.name)
+        # await asyncio.sleep(5)  # for async test
         try:
             if not await new_file.exists():
                 await file.replace(new_file)
@@ -56,7 +54,7 @@ class FolderSorter:
 
     async def __get_sub_folders(self, _folder: AsyncPath) -> list:
         try:
-            if AsyncPath(self.folder) == _folder:
+            if self.__folder == _folder:
                 return [item async for item in _folder.iterdir()
                         if await item.is_dir() and item.name not in self.__file_types.keys()]
             else:
@@ -76,25 +74,28 @@ class FolderSorter:
     async def __sub_folders_layer(path: AsyncPath) -> list:
         return [item async for item in path.iterdir() if await item.is_dir()]
 
-    async def __get_all_folders(self):  # recursion free !!!
-        yield [AsyncPath(self.folder)]
+    async def __get_all_folders(self):  # recursion free
+        yield [self.__folder]
 
-        results = [item async for item in AsyncPath(self.folder).iterdir()
+        results = [item async for item in self.__folder.iterdir()
                    if await item.is_dir() and item.name not in self.__file_types.keys()]
-        yield results
+        if results:
+            yield results
 
-        while results:
-            cors = [self.__sub_folders_layer(folder) for folder in results]
-            result = await asyncio.gather(*cors)
-            results = [folder for _folder_list in result for folder in _folder_list]
-            if results:
-                yield results
+            while results:
+                cors = [self.__sub_folders_layer(folder) for folder in results]
+                # await asyncio.sleep(1)  # for async test
+                result = await asyncio.gather(*cors)
+                results = [folder for _folder_list in result for folder in _folder_list]
+                if results:
+                    yield results
 
     async def run(self):
         processed_folders_stack = []
 
         await self.__base_folders_create()
 
+        # files processing
         async for layer_folders in self.__get_all_folders():
             cors = [self.__folder_handler(folder) for folder in layer_folders]
             tasks = [asyncio.create_task(item) for item in cors]
@@ -115,3 +116,10 @@ class FolderSorter:
                 await _folder.rmdir()
             except (OSError, PermissionError) as err:
                 logging.error(f"An error occurred when deleting folder {_folder}:\n{err}")
+
+
+if __name__ == '__main__':
+    sorter = FolderSorter(r"c:\PythonPrj\TestFolder")
+    s_time = time()
+    asyncio.run(sorter.run())
+    print(time() - s_time)
