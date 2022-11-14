@@ -1,12 +1,13 @@
 import asyncio
 import socket
+from datetime import datetime
 
 HOST = ""
 PORT = 5005
 
 
 async def handle_connection(loop, sock, addr):
-    print(f"Start {addr}")
+    print(f"Start {addr} at {datetime.now()}")
     with sock:
         while True:
             try:
@@ -26,12 +27,13 @@ async def handle_connection(loop, sock, addr):
                 print(f"Client {addr} suddenly closed, cannot send")
                 break
 
-    print(f"Disconnected by {addr}")
+    print(f"Disconnected by {addr} at {datetime.now()}")
 
 
-async def start_server():
+async def start_server(host, port):
+    print(f"Server start at {datetime.now()}")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as serv_sock:
-        serv_sock.bind((HOST, PORT))
+        serv_sock.bind((host, port))
         serv_sock.listen()
         serv_sock.setblocking(False)
 
@@ -39,13 +41,12 @@ async def start_server():
 
         while True:
             sock, addr = await serv_loop.sock_accept(serv_sock)
-            print(sock, addr)
             cor_con = handle_connection(serv_loop, sock, addr)
             serv_loop.create_task(cor_con)
 
 
 if __name__ == "__main__":
     try:
-        asyncio.run(start_server())
+        asyncio.run(start_server(HOST, PORT))
     except KeyboardInterrupt:
-        print("\nThe server was shut down")
+        print(f"\nThe server was shut down at {datetime.now()}")
