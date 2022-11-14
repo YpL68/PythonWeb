@@ -27,7 +27,7 @@ def start_client(host, port):
                 print(f"Server unavailable, unable to read")
                 break
 
-            if data == "close":
+            if not data or data == "close":
                 print("The program was shut down")
                 break
             print("Received:", data)
