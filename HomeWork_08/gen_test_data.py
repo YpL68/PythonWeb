@@ -1,6 +1,6 @@
 import sqlite3
 from datetime import date, timedelta
-from random import randint, choice
+from random import randint
 
 import faker
 
@@ -36,7 +36,7 @@ def gen_grade_list():
 
         num_std = NUM_STD_IN_GROUP * NUM_GROUP
         for std_id in [randint(1, num_std) for _ in range(3)]:
-            yield (grd_id, dsc_id,std_id, date_)
+            yield (grd_id, dsc_id, std_id, date_)
 
 
 def generate_test_data():
