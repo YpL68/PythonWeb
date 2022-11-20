@@ -1,9 +1,18 @@
 TABLE_WIDTH = 80
 
 
-def easy_table(data: list, cols_align, cell_sep=' | ', header_separator=True) -> str:
+def easy_table(data: list, cell_sep=' | ', header_separator=True) -> str:
     rows = len(data)
     cols = len(data[0])
+
+    cols_align = ["R" for _ in range(cols)]
+    first_data_row = 1 if header_separator else 0
+    for num, item in enumerate(data[first_data_row]):
+        try:
+            float(item)
+        except ValueError:
+            cols_align[num] = "L"
+
     header_row = 0 if header_separator else -1
     max_area_width = TABLE_WIDTH - cols * 3
     col_max_width = int(max_area_width / cols)
@@ -53,7 +62,7 @@ def easy_table(data: list, cols_align, cell_sep=' | ', header_separator=True) ->
                 else:
                     item = sub_str.rstrip().ljust(col_width[col])
 
-                if row > header_row and cols_align[col] == "L":
+                if row > header_row and cols_align[col] == "R":
                     item = sub_str.strip().rjust(col_width[col])
                 result.append(item)
                 col_pos[col] = idx_end

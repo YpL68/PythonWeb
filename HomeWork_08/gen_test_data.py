@@ -76,27 +76,5 @@ def generate_test_data():
                     conn.commit()
 
 
-
-        #     SELECT
-        #         CAST(grd_id as TEXT) 'Id',
-        #         grd_name 'Оцінка',
-        #         current_date 'Дата'
-        #     FROM grades
-        #     ORDER BY grd_id
-        # """
-        #
-        # result = list(cur.execute(sql_get_groups_id).fetchall())
-        # headers = tuple(item[0] for item in cur.description)
-        # result.insert(0, headers)
-        # cols_align = ("L", "R", "R")
-        #
-        # print(easy_table(result, cols_align))
-        #
-        # cur.close()
-        #
-        # if conn.in_transaction:
-        #     conn.commit()
-
-
 if __name__ == '__main__':
     generate_test_data()
