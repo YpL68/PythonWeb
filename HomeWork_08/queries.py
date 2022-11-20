@@ -136,7 +136,7 @@ QUERY_LIST[9] = """
 
 QUERY_LIST[10] = """
     SELECT
-        CAST(ROUND(AVG(gr.grd_value), 2) AS text) AS AvgGrade
+        coalesce(CAST(ROUND(AVG(gr.grd_value), 2) AS text), '') AS AvgGrade
     FROM grade_list AS gl
         INNER JOIN disciplines AS dc ON gl.gls_dsc_id = dc.dsc_id
         INNER JOIN grades AS gr ON gl.gls_grd_id = gr.grd_id
@@ -148,7 +148,7 @@ QUERY_LIST[10] = """
 
 QUERY_LIST[11] = """
     SELECT
-        CAST(ROUND(AVG(gr.grd_value),2) AS text) AS AvgGrade
+        coalesce(CAST(ROUND(AVG(gr.grd_value),2) AS text), '') AS AvgGrade
     FROM grade_list AS gl
         INNER JOIN disciplines AS dc ON gl.gls_dsc_id = dc.dsc_id
         INNER JOIN grades AS gr ON gl.gls_grd_id = gr.grd_id
