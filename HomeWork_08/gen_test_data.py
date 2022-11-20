@@ -56,13 +56,13 @@ def generate_test_data():
         if conn is not None:
             try:
                 cur = conn.cursor()
+
                 delete_from_table(conn, "grade_list")
                 delete_from_table(conn, "students")
                 delete_from_table(conn, "std_groups")
                 delete_from_table(conn, "grades")
                 delete_from_table(conn, "disciplines")
                 delete_from_table(conn, "teachers")
-
 
                 cur.executemany("INSERT INTO std_groups (grp_name) VALUES(?)", STD_GROUPS)
                 cur.executemany("INSERT INTO grades (grd_name, grd_value) VALUES(?, ?)", GRADES)
