@@ -28,7 +28,6 @@ def execute_query(conn: sqlite3.Connection, num_query: int) -> list:
 
 def main():
     with create_connection() as conn:
-        print(type(conn))
         if conn is not None:
             while True:
                 inp_str = input("Enter the query number or 'exit' to quit: ")
@@ -38,7 +37,7 @@ def main():
                     num_query = int(inp_str)
                     if not (1 <= num_query <= 12):
                         raise ValueError
-                except ValueError as err:
+                except ValueError:
                     print("Please enter a valid query number (1 - 12).")
                 else:
                     print(easy_table(execute_query(conn, num_query)))
