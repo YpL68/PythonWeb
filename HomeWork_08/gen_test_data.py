@@ -6,9 +6,6 @@ import faker
 
 from connection import create_connection
 
-NUM_DISC = 5
-NUM_GRADES = 5
-NUM_GROUP = 3
 NUM_STD_IN_GROUP = 10
 
 STD_GROUPS = [("1 група",), ("2 група",), ("3 група",)]
