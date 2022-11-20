@@ -56,11 +56,11 @@ CREATE TABLE "grades" (
 -- ----------------------------
 -- Table structure for sqlite_sequence
 -- ----------------------------
-DROP TABLE IF EXISTS "sqlite_sequence";
-CREATE TABLE "sqlite_sequence" (
-  "name",
-  "seq"
-);
+-- DROP TABLE IF EXISTS "sqlite_sequence";
+-- CREATE TABLE "sqlite_sequence" (
+--   "name",
+--   "seq"
+-- );
 
 -- ----------------------------
 -- Table structure for std_groups
@@ -94,7 +94,7 @@ CREATE TABLE "teachers" (
 -- ----------------------------
 -- Auto increment value for disciplines
 -- ----------------------------
-UPDATE "sqlite_sequence" SET seq = 5 WHERE name = 'disciplines';
+-- UPDATE "sqlite_sequence" SET seq = 5 WHERE name = 'disciplines';
 
 -- ----------------------------
 -- Indexes structure for table disciplines
@@ -107,7 +107,7 @@ ON "disciplines" (
 -- ----------------------------
 -- Auto increment value for grade_list
 -- ----------------------------
-UPDATE "sqlite_sequence" SET seq = 264 WHERE name = 'grade_list';
+-- UPDATE "sqlite_sequence" SET seq = 264 WHERE name = 'grade_list';
 
 -- ----------------------------
 -- Indexes structure for table grade_list
@@ -128,7 +128,7 @@ ON "grades" (
 -- ----------------------------
 -- Auto increment value for std_groups
 -- ----------------------------
-UPDATE "sqlite_sequence" SET seq = 3 WHERE name = 'std_groups';
+-- UPDATE "sqlite_sequence" SET seq = 3 WHERE name = 'std_groups';
 
 -- ----------------------------
 -- Indexes structure for table std_groups
@@ -141,7 +141,7 @@ ON "std_groups" (
 -- ----------------------------
 -- Auto increment value for students
 -- ----------------------------
-UPDATE "sqlite_sequence" SET seq = 30 WHERE name = 'students';
+-- UPDATE "sqlite_sequence" SET seq = 30 WHERE name = 'students';
 
 -- ----------------------------
 -- Indexes structure for table students
@@ -154,7 +154,7 @@ ON "students" (
 -- ----------------------------
 -- Auto increment value for teachers
 -- ----------------------------
-UPDATE "sqlite_sequence" SET seq = 5 WHERE name = 'teachers';
+-- UPDATE "sqlite_sequence" SET seq = 5 WHERE name = 'teachers';
 
 -- ----------------------------
 -- Indexes structure for table teachers
