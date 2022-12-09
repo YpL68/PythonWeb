@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker
 BASE_DIR = Path(__file__).parent.parent
 DATABASE = "sqlite:///" + str(BASE_DIR/"database"/"assist.db")
 
-engine = create_engine(DATABASE, echo=True)
+engine = create_engine(DATABASE, echo=False)
 
 DBSession = sessionmaker(bind=engine, expire_on_commit=False)
 
@@ -21,4 +21,3 @@ def session_scope():
         raise err
     finally:
         session.close()
-

@@ -48,7 +48,7 @@ class Contact(BaseModel):
     email = Column(String(64), unique=True)
     birthday = Column(DateTime)
     address = Column(String(128))
-    phone_list = relationship("Phone", cascade="all, delete", back_populates="contact")
+    phone_list = relationship("Phone", cascade="all, delete-orphan", back_populates="contact")
 
     @hybrid_property
     def data_view(self) -> dict:
