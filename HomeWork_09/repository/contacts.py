@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from database.db_models import Contact, Phone, DATE_FORMAT
-
+from database.db import session_scope
 from function import format_phone_num
 
 
@@ -34,8 +34,9 @@ def get_contacts(session: Session, filter_str: str = None) -> list:
 
     if contacts:
         out_list.append([key for key in contacts[0].data_view])
-        for contact in contacts:
-            out_list.append(contact_data_view_to_list(contact.data_view))
+        out_list.extend([contact_data_view_to_list(contact.data_view) for contact in contacts])
+
+    session.commit()
 
     return out_list
 
@@ -90,3 +91,25 @@ def contact_delete(session: Session, cnt_id: int):
     if contact:
         session.delete(contact)
         session.commit()
+
+
+if __name__ == '__main__':
+    with session_scope() as session_:
+        try:
+            contact_delete(session_, 11)
+            print(get_contacts(session_, filter_str="ко"))
+            contact = session_.query(Contact).get(15)
+            data = contact.data_view
+            data["id"] = -1
+            data["first_name"] = "11111111"
+            data["email"] = "ere@jkjk.ua"
+            data["phone_list"] = ["380568974123"]
+
+            print(data)
+
+            contact_insert_or_update(session_, data)
+
+        except Exception as err:
+            print(err)
+            if session_.in_transaction():
+                session_.rollback()
