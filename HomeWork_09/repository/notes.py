@@ -6,7 +6,7 @@ from database.db_models import Note, NotesTags, Tag
 
 def get_note_data_view(session: Session, note_id) -> dict:
     if note_id == -1:
-        return {"id": -1, "header": "", "content": "", "tags": []}
+        return {"id": -1, "header": "", "content": "", "tag_list": []}
     else:
         note = session.query(Note).get(note_id)
         if not note:
