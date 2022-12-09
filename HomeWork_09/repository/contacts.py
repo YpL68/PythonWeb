@@ -2,18 +2,30 @@ from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
 from database.db_models import Contact, Phone, DATE_FORMAT
-from database.db import session_scope
 from function import format_phone_num
+
+from database.db import session_scope
+
+
+def get_contact_data_view(session: Session, cnt_id) -> dict:
+    if cnt_id == -1:
+        return {"id": -1, "first_name": "", "last_name": "", "email": "", "birthday": "",
+                "address": "", "phone_list": []}
+    else:
+        contact = session.query(Contact).get(cnt_id)
+        if not contact:
+            raise ValueError(f"Contact by id {cnt_id} not found.")
+        return contact.data_view
 
 
 def contact_data_view_to_list(data_view: dict) -> list:
     return [
         str(data_view["id"]),
         data_view["first_name"],
-        data_view["last_name"],
-        data_view["email"],
+        data_view["last_name"] if data_view["last_name"] else "",
+        data_view["email"] if data_view["email"] else "",
         data_view["birthday"].strftime(DATE_FORMAT) if data_view["birthday"] else "",
-        data_view["address"],
+        data_view["address"] if data_view["address"] else "",
         ", ".join([format_phone_num(phone) for phone in data_view["phone_list"]])
     ]
 
@@ -54,7 +66,9 @@ def contact_phone_list_syn(session: Session, contact: Contact, phone_list: list)
     for phone_num in phone_list:
         phone = session.query(Phone).filter(Phone.phone_num == phone_num).first()
         if phone:
-            if phone.contact_id != contact.id:
+            print(f"Phone {phone.phone_num}")
+            print(f"contact id {contact.id}")
+            if not contact.id or phone.contact_id != contact.id:
                 raise ValueError(f"Попытка добавить номер {phone_num}, принадлежащий контакту {phone.contact_id}.")
             else:
                 phone_list.remove(phone.phone_num)
@@ -66,11 +80,11 @@ def contact_phone_list_syn(session: Session, contact: Contact, phone_list: list)
     contact.phone_list.extend(phone_for_append)
 
 
-def contact_insert_or_update(session: Session, data_view: dict):
+def contact_insert_or_update(session: Session, data_view: dict) -> str:
     if data_view["id"] != -1:
         contact = session.query(Contact).get(data_view["id"])
         if not contact:
-            raise ValueError("Контакт не найден")
+            raise ValueError(f"Contact by id {data_view['id']} not found.")
     else:
         contact = Contact()
 
@@ -85,31 +99,33 @@ def contact_insert_or_update(session: Session, data_view: dict):
 
     session.commit()
 
+    return "Operation was successful"
+
 
 def contact_delete(session: Session, cnt_id: int):
     contact = session.query(Contact).get(cnt_id)
-    if contact:
-        session.delete(contact)
-        session.commit()
+    if not contact:
+        raise ValueError(f"Contact by id {cnt_id} not found.")
+    session.delete(contact)
+    session.commit()
+    return "Operation was successful"
 
 
 if __name__ == '__main__':
-    with session_scope() as session_:
+    with session_scope() as session:
         try:
-            contact_delete(session_, 11)
-            print(get_contacts(session_, filter_str="ко"))
-            contact = session_.query(Contact).get(15)
-            data = contact.data_view
-            data["id"] = -1
-            data["first_name"] = "11111111"
-            data["email"] = "ere@jkjk.ua"
-            data["phone_list"] = ["380568974123"]
+            try:
+                data_view = get_contact_data_view(session, 43)
+                print(data_view)
+                data_view["id"] = -1
+                data_view["first_name"] = data_view["first_name"] + "1"
+                data_view["phone_list"] = ['380147711472', '389984587737']
 
-            print(data)
-
-            contact_insert_or_update(session_, data)
-
+                print(data_view)
+                print(contact_insert_or_update(session, data_view))
+            except (ValueError, KeyError, IndexError) as err:
+                print(err)
         except Exception as err:
             print(err)
-            if session_.in_transaction():
-                session_.rollback()
+            if session.in_transaction():
+                session.rollback()
