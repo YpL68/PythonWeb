@@ -10,6 +10,7 @@ packages = [{include = "homework_09"}]
 python = "^3.10"
 sqlalchemy = "^1.4.44"
 alembic = "^1.8.1"
+faker = "^15.3.4"
 
 
 [build-system]
