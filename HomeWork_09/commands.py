@@ -4,6 +4,7 @@ from prompt_toolkit import prompt
 
 from repository.contacts import get_contact_data_view, get_contacts,\
     contact_delete, contact_insert_or_update
+from repository.notes import note_delete, note_insert_or_update, get_notes
 from function import easy_table, sanitize_phone_num, format_phone_num
 from database.db_models import DATE_FORMAT
 
@@ -40,7 +41,6 @@ def edit_contact_data(data_view: dict) -> dict:
 
 def add_cnt_cmd(session):
     data_view = edit_contact_data(get_contact_data_view(session, -1))
-    print(data_view)
     return contact_insert_or_update(session, data_view)
 
 
