@@ -32,8 +32,8 @@ def contact_data_view_to_list(data_view: dict) -> list:
 
 def get_contacts(session: Session, filter_str: str = None) -> list:
     out_list = []
-    f_str = f"%{filter_str}%"
     if filter_str:
+        f_str = f"%{filter_str}%"
         contacts = session.query(Contact).distinct() \
             .outerjoin(Phone) \
             .filter(or_(Contact.first_name.like(f_str),
@@ -43,7 +43,6 @@ def get_contacts(session: Session, filter_str: str = None) -> list:
             .all()
     else:
         contacts = session.query(Contact).all()
-
     if contacts:
         out_list.append([key for key in contacts[0].data_view])
         out_list.extend([contact_data_view_to_list(contact.data_view) for contact in contacts])
@@ -69,7 +68,8 @@ def contact_phone_list_syn(session: Session, contact: Contact, phone_list: list)
             print(f"Phone {phone.phone_num}")
             print(f"contact id {contact.id}")
             if not contact.id or phone.contact_id != contact.id:
-                raise ValueError(f"Попытка добавить номер {phone_num}, принадлежащий контакту {phone.contact_id}.")
+                raise ValueError(f"Attempting to add a phone number {phone_num}, "
+                                 f"belonging to a contact {phone.contact_id}.")
             else:
                 phone_list.remove(phone.phone_num)
                 continue
@@ -112,20 +112,22 @@ def contact_delete(session: Session, cnt_id: int):
 
 
 if __name__ == '__main__':
-    with session_scope() as session:
+    with session_scope() as session_:
         try:
             try:
-                data_view = get_contact_data_view(session, 43)
-                print(data_view)
-                data_view["id"] = -1
-                data_view["first_name"] = data_view["first_name"] + "1"
-                data_view["phone_list"] = ['380147711472', '389984587737']
-
-                print(data_view)
-                print(contact_insert_or_update(session, data_view))
+                print(get_contacts(session_, filter_str="51"))
+                # print(get_contacts(session_, filter_str="51"))
+                # data_view_ = get_contact_data_view(session_, 43)
+                # print(data_view_)
+                # data_view_["id"] = -1
+                # data_view_["first_name"] = data_view_["first_name"] + "1"
+                # data_view_["phone_list"] = ['380147711472', '389984587737']
+                #
+                # print(data_view_)
+                # print(contact_insert_or_update(session_, data_view_))
             except (ValueError, KeyError, IndexError) as err:
                 print(err)
         except Exception as err:
             print(err)
-            if session.in_transaction():
-                session.rollback()
+            if session_.in_transaction():
+                session_.rollback()
