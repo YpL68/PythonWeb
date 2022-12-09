@@ -4,7 +4,7 @@ from prompt_toolkit import prompt
 
 from repository.contacts import get_contact_data_view, get_contacts,\
     contact_delete, contact_insert_or_update
-from repository.notes import note_delete, note_insert_or_update, get_notes
+from repository.notes import note_delete, note_insert_or_update, get_notes, get_note_data_view
 from function import easy_table, sanitize_phone_num, format_phone_num
 from database.db_models import DATE_FORMAT
 
@@ -64,23 +64,52 @@ def find_cnt_cmd(session):
         return "No contacts was found."
 
 
+def edit_note_data(data_view: dict) -> dict:
+    input_str = ""
+    while not input_str:
+        input_str = prompt("Header: ", default=data_view["header"]).strip()
+    data_view["header"] = input_str
+
+    default_str = data_view["content"] if data_view["content"] else ""
+    input_str = prompt("Content: ", default=default_str).strip()
+    data_view["content"] = input_str if input_str else None
+
+    default_str = ", ".join([tag for tag in data_view["tag_list"]])
+    input_str = prompt("Tags: ", default=default_str)
+    tag_list = list(filter(lambda x: x != "", input_str.lower().split(",")))
+    data_view["tag_list"] = [tag.strip() for tag in tag_list]
+
+    return data_view
+
+
 def add_note_cmd(session):
-    pass
+    data_view = edit_contact_data(get_contact_data_view(session, -1))
+    return contact_insert_or_update(session, data_view)
 
 
 def edit_note_cmd(session):
-    pass
+    input_str = prompt("Note Id: ").strip()
+    data_view = edit_note_data(get_note_data_view(session, int(input_str)))
+    return note_insert_or_update(session, data_view)
 
 
 def del_note_cmd(session):
-    pass
+    input_str = prompt("Note Id: ").strip()
+    return note_delete(session, int(input_str))
 
 
 def find_note_cmd(session):
-    pass
+    input_str = prompt("Search string: ")
+    result = get_notes(session, filter_str=input_str)
+    if result:
+        return easy_table(result)
+    else:
+        return "No notes was found."
 
 
 def exit_cmd(session):
+    if session.in_transaction():
+        session.commit()
     exit(0)
 
 
