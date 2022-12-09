@@ -73,7 +73,6 @@ def edit_note_data(data_view: dict) -> dict:
     default_str = data_view["content"] if data_view["content"] else ""
     input_str = prompt("Content: ", default=default_str).strip()
     data_view["content"] = input_str if input_str else None
-
     default_str = ", ".join([tag for tag in data_view["tag_list"]])
     input_str = prompt("Tags: ", default=default_str)
     tag_list = list(filter(lambda x: x != "", input_str.lower().split(",")))
@@ -83,8 +82,8 @@ def edit_note_data(data_view: dict) -> dict:
 
 
 def add_note_cmd(session):
-    data_view = edit_contact_data(get_contact_data_view(session, -1))
-    return contact_insert_or_update(session, data_view)
+    data_view = edit_note_data(get_note_data_view(session, -1))
+    return note_insert_or_update(session, data_view)
 
 
 def edit_note_cmd(session):
