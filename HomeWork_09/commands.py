@@ -10,32 +10,13 @@ from database.db_models import DATE_FORMAT
 
 
 def edit_contact_data(data_view: dict) -> dict:
-    input_str = ""
-    while not input_str:
-        input_str = prompt("First name: ", default=data_view["first_name"]).strip()
-    data_view["first_name"] = input_str
-
-    default_str = data_view["last_name"] if data_view["last_name"] else ""
-    input_str = prompt("Last name: ", default=default_str).strip()
-    data_view["last_name"] = input_str if input_str else None
-
-    default_str = data_view["email"] if data_view["email"] else ""
-    input_str = prompt("Email: ", default=default_str).strip()
-    data_view["email"] = input_str if input_str else None
-
-    default_str = data_view["birthday"].strftime(DATE_FORMAT) if data_view["birthday"] else ""
-    input_str = prompt("Birthday: ", default=default_str).strip()
-    data_view["birthday"] = datetime.strptime(input_str, DATE_FORMAT) if input_str else None
-
-    default_str = data_view["address"] if data_view["address"] else ""
-    input_str = prompt("Address: ", default=default_str).strip()
-    data_view["address"] = input_str if input_str else None
-
-    default_str = ", ".join([format_phone_num(phone) for phone in data_view["phone_list"]])
-    input_str = prompt("Phones: ", default=default_str)
-    phone_list = list(filter(lambda x: x != "", input_str.lower().split(",")))
-    data_view["phone_list"] = [sanitize_phone_num(phone_num) for phone_num in phone_list]
-
+    data_view["first_name"] = prompt_str_field(data_view, "first_name", True)
+    data_view["last_name"] = prompt_str_field(data_view, "last_name")
+    data_view["email"] = prompt_str_field(data_view, "email")
+    data_view["birthday"] = prompt_date_field(data_view, "birthday")
+    data_view["address"] = prompt_str_field(data_view, "address")
+    data_view["phone_list"] = prompt_list_field(data_view, "phone_list", False,
+                                                format_phone_num, sanitize_phone_num)
     return data_view
 
 
@@ -65,18 +46,9 @@ def find_cnt_cmd(session):
 
 
 def edit_note_data(data_view: dict) -> dict:
-    input_str = ""
-    while not input_str:
-        input_str = prompt("Header: ", default=data_view["header"]).strip()
-    data_view["header"] = input_str
-
-    default_str = data_view["content"] if data_view["content"] else ""
-    input_str = prompt("Content: ", default=default_str).strip()
-    data_view["content"] = input_str if input_str else None
-    default_str = ", ".join([tag for tag in data_view["tag_list"]])
-    input_str = prompt("Tags: ", default=default_str)
-    tag_list = list(filter(lambda x: x != "", input_str.lower().split(",")))
-    data_view["tag_list"] = [tag.strip() for tag in tag_list]
+    data_view["header"] = prompt_str_field(data_view, "header", True)
+    data_view["content"] = prompt_str_field(data_view, "content")
+    data_view["tag_list"] = prompt_list_field(data_view, "tag_list")
 
     return data_view
 
@@ -110,6 +82,39 @@ def exit_cmd(session):
     if session.in_transaction():
         session.commit()
     exit(0)
+
+
+def prompt_str_field(data_view: dict, field_name: str, required=False) -> str:
+    prompt_text = field_name.title().replace("_", " ")
+    default_str = data_view[field_name] if data_view[field_name] else ""
+    input_str = prompt(f"{prompt_text}: ", default=default_str).strip()
+    if required:
+        while not input_str:
+            input_str = prompt(f"{prompt_text}: ", default=default_str).strip()
+    return input_str if input_str else None
+
+
+def prompt_date_field(data_view: dict, field_name: str, required=False) -> datetime:
+    prompt_text = field_name.title().replace("_", " ")
+    default_str = data_view[field_name].strftime(DATE_FORMAT) if data_view[field_name] else ""
+    input_str = prompt(f"{prompt_text}: ", default=default_str).strip()
+    if required:
+        while not input_str:
+            input_str = prompt(f"{prompt_text}: ", default=default_str).strip()
+    return datetime.strptime(input_str, DATE_FORMAT) if input_str else None
+
+
+def prompt_list_field(data_view: dict, field_name: str, required=False,
+                      format_func=None, sanitize_func=None) -> list:
+    prompt_text = field_name.title().replace("_", " ")
+    f_list = [format_func(item) if format_func else item for item in data_view[field_name]]
+    default_str = ", ".join(f_list)
+    input_str = prompt(f"{prompt_text}: ", default=default_str).strip()
+    if required:
+        while not input_str:
+            input_str = prompt(f"{prompt_text}: ", default=default_str).strip()
+    item_list = list(filter(lambda x: x != "", input_str.lower().split(",")))
+    return [sanitize_func(item) if sanitize_func else item.strip() for item in item_list]
 
 
 COMMANDS = {
