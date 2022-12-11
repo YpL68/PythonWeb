@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "homework-11"
+version = "0.1.0"
+description = ""
+authors = ["YpL68 <yuriy.plks@gmail.com>"]
+readme = "README.md"
+packages = [{include = "homework_11"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+flask = "^2.2.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
