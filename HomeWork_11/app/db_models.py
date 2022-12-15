@@ -78,7 +78,7 @@ class Note(BaseModel):
         return {"id": self.id,
                 "header": self.header,
                 "content": self.content,
-                "tag_list": [tag.name for tag in self.tags]}
+                "tag_list": ", ".join([tag.name for tag in self.tags])}
 
 
 class Tag(BaseModel):

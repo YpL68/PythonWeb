@@ -6,9 +6,15 @@
     <div class="container">
       <h1>{{ title }}</h1>
       <!-- Button trigger modal -->
-      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#AddNote">
-        Add note
-      </button>
+      <div class='d-flex justify-content-end'>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#AddNote">
+          Add note
+        </button>
+        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#AddNote">
+          Add note
+        </button>
+      </div>
+
     </div>
     <!-- Modal 1 for adding a note -->
     <div class="modal fade" id="AddNote" tabindex="-1" aria-labelledby="AddNoteLabel" aria-hidden="true">
@@ -18,33 +24,54 @@
             <h1 class="modal-title fs-5" id="AddNoteLabel">Adding note</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            ...
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary">Save changes</button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          </div>
+          <form action="/notes/edit/0" method="post">
+            <div class="modal-body">
+              <div class="form-group row">
+                <label for="header" class="col-xs-2 control-label">
+                  <span style="font-weight:bold">Header</span>
+                </label>
+                <div class="col-xs-10">
+                  <input type="text" id="header" class="form-control" name="header"
+                         value=""/>
+                </div>
+                <label for="content" class="col-xs-2 control-label">
+                  <span style="font-weight:bold">Content</span>
+                </label>
+                <div class="col-xs-10">
+                  <input type="text" id="content" class="form-control" name="content"
+                         value=""/>
+                </div>
+                <label for="tags" class="col-xs-2 control-label">
+                  <span style="font-weight:bold">Tags</span>
+                </label>
+                <div class="col-xs-10">
+                  <input type="text" id="tags" class="form-control" name="tags"
+                         value=""/>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
         </div>
       </div>
-    </div>
-    <!-- end Modal 1 -->
+    </div>    <!-- end Modal 1 -->
   </div>
   <div class="container mb-3 mt-2">
-    {% with messages = get_flashed_messages() %}
+    {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for message in messages %}
-{#          {% if category == "error" %}#}
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-{#          {% endif %}#}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
         {% endfor %}
       {% endif %}
     {% endwith %}
 
-    <table class="table table-bordered">
+    <table class="table table-bordered table-striped">
       <thead class="table-dark">
       <tr>
         <th style="width: 5%">Id</th>
@@ -60,12 +87,11 @@
           <td class="text-end">{{ note["id"] }}</td>
           <td class="text-start">{{ note["header"] }}</td>
           <td class="text-start">{{ note["content"] }}</td>
-          <td class="text-justify">{{ note["tag_list"] }}</td>
+          <td class="text-start">{{ note["tag_list"] }}</td>
           <td>
             <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
                     data-bs-target="#update_note_{{ note["id"] }}">
-              Update
-            </button>
+              <span class="btn-label"><i class="fa fa-edit"></i></span></button>
           </td>
           <!-- Modal 2 for updating a note -->
           <div class="modal fade" id="update_note_{{ note["id"] }}" tabindex="-1" aria-labelledby="basicModalLabel"
@@ -76,36 +102,37 @@
                   <h1 class="modal-title fs-5" id="basicModalLabel">Updating a note {{ note["id"] }}</h1>
                   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-
-                  <div class="form-group row">
-                    <label for="header" class="col-xs-2 control-label">
-                      <span style="font-weight:bold">Header</span>
-                    </label>
-                    <div class="col-xs-10">
-                      <input type="text" id="header" class="form-control" name="header"
-                             value="{{ note["header"] }}"/>
-                    </div>
-                    <label for="content" class="col-xs-2 control-label">
-                      <span style="font-weight:bold">Content</span>
-                    </label>
-                    <div class="col-xs-10">
-                      <input type="text" id="content" class="form-control" name="content"
-                             value="{{ note["content"] }}"/>
-                    </div>
-                    <label for="tags" class="col-xs-2 control-label">
-                      <span style="font-weight:bold">Tags</span>
-                    </label>
-                    <div class="col-xs-10">
-                      <input type="text" id="tags" class="form-control" name="tags"
-                             value="{{ note["tag_list"] }}"/>
+                <form action="/notes/edit/{{ note["id"] }}" method="post">
+                  <div class="modal-body">
+                    <div class="form-group row">
+                      <label for="header" class="col-xs-2 control-label">
+                        <span style="font-weight:bold">Header</span>
+                      </label>
+                      <div class="col-xs-10">
+                        <input type="text" id="header" class="form-control" name="header"
+                               value="{{ note["header"] }}"/>
+                      </div>
+                      <label for="content" class="col-xs-2 control-label">
+                        <span style="font-weight:bold">Content</span>
+                      </label>
+                      <div class="col-xs-10">
+                        <input type="text" id="content" class="form-control" name="content"
+                               value="{{ note["content"] }}"/>
+                      </div>
+                      <label for="tags" class="col-xs-2 control-label">
+                        <span style="font-weight:bold">Tags</span>
+                      </label>
+                      <div class="col-xs-10">
+                        <input type="text" id="tags" class="form-control" name="tags"
+                               value="{{ note["tag_list"] }}"/>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="button" class="btn btn-primary">Save changes</button>
-                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </form>
               </div>
             </div>
           </div>
@@ -113,8 +140,8 @@
           <td>
             <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
                     data-bs-target="#delete_note_{{ note['id'] }}">
-              Delete
-            </button>
+              <span class="btn-label"><i class="fa fa-trash"></i></span></button>
+
             <!-- Modal 3 for deleting a note -->
             <div class="modal fade" id="delete_note_{{ note["id"] }}" tabindex="-1" aria-labelledby="basicModalLabel"
                  aria-hidden="true">
@@ -132,11 +159,11 @@
                   </div>
                   <div class="modal-footer">
                     <form action="/notes/delete/{{ note["id"] }}" method="post">
+                      {#                    <form action="{{url_for('/notes/delete', note_id=note["id"])}}" method="post">#}
                       <button type="submit" class="btn btn-danger">Delete</button>
                     </form>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                   </div>
-                  {#                  </form>#}
                 </div>
               </div>
             </div>
