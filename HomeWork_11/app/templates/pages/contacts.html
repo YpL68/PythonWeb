@@ -14,15 +14,14 @@
 
     </div>
     <!-- Modal 1 for adding a note -->
-    <div class="modal fade" id="AddNote" tabindex="-1" aria-labelledby="AddNoteLabel" aria-hidden="true"
-      data-bs-note_id="0">
+    <div class="modal fade" id="AddNote" tabindex="-1" aria-labelledby="AddNoteLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="AddNoteLabel">Adding a note</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form class="needs-validation" id="form_action" action="/notes/edit/0" method="post" novalidate>
+          <form class="needs-validation" action="/notes/edit/0" method="post" novalidate>
             <div class="modal-body">
               <div class="form-group row">
                 <label for="header" class="col-xs-2 control-label">
@@ -45,7 +44,7 @@
                   <span style="font-weight:bold">Tags</span>
                 </label>
                 <div class="col-xs-10">
-                  <input type="text" id="tags" class="form-control" name="tags"
+                  <input type="email" id="tags" class="form-control" name="tags"
                          value=""/>
                 </div>
               </div>
@@ -71,7 +70,7 @@
       {% endif %}
     {% endwith %}
 
-    <table class="table table-bordered table-striped" id="NotesTbl">
+    <table class="table table-bordered table-striped">
       <thead class="table-dark">
       <tr>
         <th style="width: 5%">Id</th>
@@ -89,17 +88,59 @@
           <td class="text-start">{{ note["content"] }}</td>
           <td class="text-start">{{ note["tag_list"] }}</td>
           <td>
-            <button type="button" class="btn btn-outline-primary btn-sm"
-                    data-bs-toggle="modal"
-                    data-bs-target="#AddNote"
-                    data-bs-header="Updating a note # {{ note["id"] }}"
-                    data-bs-note_action="/notes/edit/{{ note["id"] }}"
-                    data-bs-note_title="{{ note["header"] }}"
-                    data-bs-note_content="{{ note["content"] }}"
-                    data-bs-note_tags="{{ note["tag_list"] }}"
-            >
+            <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                    data-bs-target="#AddNote">
+{#                    data-bs-target="#update_note_{{ note["id"] }}">#}
               <span class="btn-label"><i class="fa fa-edit"></i></span></button>
           </td>
+          <!-- Modal 2 for updating a note -->
+          <div class="modal fade" id="update_note_{{ note["id"] }}" tabindex="-1" aria-labelledby="basicModalLabel"
+               aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h1 class="modal-title fs-5" id="basicModalLabel">Updating a note {{ note["id"] }}</h1>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form class="needs-validation" action="/notes/edit/{{ note["id"] }}" method="post" novalidate>
+{#                  <form action="/notes/edit/{{ note["id"] }}" method="post">#}
+                  <div class="modal-body">
+                    <div class="form-group row">
+                      <label for="header" class="col-xs-2 control-label">
+                        <span style="font-weight:bold">Title</span>
+                      </label>
+                      <div class="col-xs-10">
+                        <input type="text" id="header" class="form-control" name="header" required
+                               value="{{ note["header"] }}"/>
+                        <div class="invalid-feedback">
+                          Enter a note title
+                        </div>
+                      </div>
+                      <label for="content" class="col-xs-2 control-label">
+                        <span style="font-weight:bold">Content</span>
+                      </label>
+                      <div class="col-xs-10">
+                        <textarea id="content" class="form-control" rows="2"
+                                  name="content">{{ note["content"] }}</textarea>
+                      </div>
+                      <label for="tags" class="col-xs-2 control-label">
+                        <span style="font-weight:bold">Tags</span>
+                      </label>
+                      <div class="col-xs-10">
+                        <input type="text" id="tags" class="form-control" name="tags"
+                               value="{{ note["tag_list"] }}"/>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          <!-- End Modal 2-->
           <td>
             <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
                     data-bs-target="#delete_note_{{ note['id'] }}">
@@ -136,33 +177,5 @@
       </tbody>
     </table>
   </div>
-
-  <script>
-      const exampleModal = document.getElementById("AddNote")
-      exampleModal.addEventListener("show.bs.modal", event => {
-          // Button that triggered the modal
-          const button = event.relatedTarget
-
-          const noteAction = button.getAttribute("data-bs-note_action")
-          const formAction = exampleModal.querySelector('#form_action')
-          formAction.setAttribute("action", noteAction)
-
-          const formHeader = button.getAttribute("data-bs-header")
-          const modalHeader = exampleModal.querySelector(".modal-title")
-          modalHeader.textContent = formHeader
-
-          const noteTitle = button.getAttribute("data-bs-note_title")
-          const modalTitle = exampleModal.querySelector("#header")
-          modalTitle.value = noteTitle
-
-          const noteContent = button.getAttribute("data-bs-note_content")
-          const modalContent = exampleModal.querySelector("#content")
-          modalContent.value = noteContent
-
-          const noteTags = button.getAttribute("data-bs-note_tags")
-          const modalTags = exampleModal.querySelector("#tags")
-          modalTags.value = noteTags
-      })
-  </script>
 
 {% endblock %}

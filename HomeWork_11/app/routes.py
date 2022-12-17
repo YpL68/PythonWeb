@@ -1,4 +1,4 @@
-from sqlite3 import IntegrityError
+from sqlalchemy.exc import IntegrityError
 
 from flask import render_template, request, redirect, url_for, flash
 from app import db
@@ -22,7 +22,7 @@ def index():
 def notes():
     notes_ = get_notes(db.session, filter_str="")
     return render_template('pages/notes.html', title='Notes', notes=notes_)
-    # return render_template('pages/test_click.html')
+    # return render_template('pages/table.html')
 
 
 @app.route('/notes/delete/<int:note_id>', methods=['POST'], strict_slashes=False)
@@ -48,9 +48,13 @@ def edit_note(note_id):
         "tag_list": [tag.strip() for tag in tag_list]}
 
     try:
-        result = note_insert_or_update(db.session, data_view), "success"
+        result = str(note_insert_or_update(db.session, data_view)), "success"
     except (ValueError, KeyError, IndexError, IntegrityError) as err:
-        result = err, "danger"
+        db.session.rollback()
+        result = str(err), "danger"
     if result:
         flash(*result)
     return redirect(url_for("notes"))
+
+
+
