@@ -52,10 +52,11 @@ class Contact(BaseModel):
         return {"id": self.id,
                 "first_name": self.first_name,
                 "last_name": self.last_name,
+                "full_name": self.full_name,
                 "email": self.email,
                 "birthday": self.birthday,
                 "address": self.address,
-                "phone_list": [phone.phone_num for phone in self.phone_list]}
+                "phone_list": ", ".join([phone.phone_num for phone in self.phone_list])}
 
 
 class Phone(BaseModel):
