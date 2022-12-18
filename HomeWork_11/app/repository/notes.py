@@ -14,15 +14,6 @@ def get_note_data_view(session: Session, note_id) -> dict:
         return note.data_view
 
 
-def note_data_view_to_list(data_view: dict) -> list:
-    return [
-        str(data_view["id"]),
-        data_view["header"],
-        data_view["content"] if data_view["content"] else "",
-        ", ".join([tag for tag in data_view["tag_list"]])
-    ]
-
-
 def get_notes(session: Session, filter_str: str = None) -> list:
     out_list = []
     f_str = f"%{filter_str}%"

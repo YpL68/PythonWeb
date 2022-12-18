@@ -5,25 +5,79 @@
   <div class="container">
     <div class="container">
       <h1>{{ title }}</h1>
-      <!-- Button trigger modal -->
-      <div class='d-flex justify-content-end'>
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#AddNote">
-          Add note
-        </button>
-      </div>
+
+      <nav class="navbar">
+        <div class="d-flex justify-content-start">
+          <form class="d-flex">
+            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success" type="submit">Search</button>
+          </form>
+        </div>
+
+        <div class='d-flex justify-content-end'>
+           <button type="button" class="btn btn-outline-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#EditNote"
+                  data-bs-note_id="0"
+                  data-bs-header="Adding a note"
+                  data-bs-note_title=""
+                  data-bs-note_content=""
+                  data-bs-note_tags=""
+          >
+            Add note
+          </button>
+        </div>
+      </nav>
 
     </div>
-    <!-- Modal 1 for adding a note -->
-    <div class="modal fade" id="AddNote" tabindex="-1" aria-labelledby="AddNoteLabel" aria-hidden="true"
+    <!-- Modal 1 for updating a note -->
+    <div class="modal fade" id="EditNote" tabindex="-1" aria-labelledby="EditNoteLabel" aria-hidden="true"
       data-bs-note_id="0">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="AddNoteLabel">Adding a note</h1>
+            <h1 class="modal-title fs-5" id="EditNoteLabel">Adding a note</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <form class="needs-validation" id="form_action" action="/notes/edit/0" method="post" novalidate>
             <div class="modal-body">
+
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="firstName" class="control-label"><span style="font-weight:bold">First name</span></label>
+                  <input type="text" class="form-control" id="firstName">
+                </div>
+                <div class="col-md-6">
+                  <label for="lastName" class="control-label"><span style="font-weight:bold">Last name</span></label>
+                  <input type="text" class="form-control" id="lastName">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="birthday" class="control-label"><span style="font-weight:bold">Birthday</span></label>
+                  <input type="date" class="form-control" id="birthday">
+                </div>
+                <div class="col-md-8">
+                  <label for="email" class="control-label"><span style="font-weight:bold">Email</span></label>
+                  <input type="email" class="form-control" id="email">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <label for="phones" class="control-label"><span style="font-weight:bold">Phones</span></label>
+                  <input type="text" class="form-control" id="phones">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <label for="address" class="control-label"><span style="font-weight:bold">Address</span></label>
+                  <input type="text" class="form-control" id="address">
+                </div>
+              </div>
+
+
+
+
               <div class="form-group row">
                 <label for="header" class="col-xs-2 control-label">
                   <span style="font-weight:bold">Title</span>
@@ -58,6 +112,32 @@
         </div>
       </div>
     </div>    <!-- end Modal 1 -->
+
+    <!-- Modal 2 for deleting a note -->
+    <div class="modal fade" id="DeleteNote" tabindex="-1" aria-labelledby="basicModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="basicModalLabel">Deleting a note</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label class="col-xs-2 control-label">Do you want to
+              <span style="font-weight:bold;color:red">delete</span> a note ?
+            </label>
+          </div>
+          <div class="modal-footer">
+            <form id="form_action" action="/notes/delete/0" method="post">
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Modal 2-->
+
   </div>
   <div class="container mb-3 mt-2">
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -91,9 +171,9 @@
           <td>
             <button type="button" class="btn btn-outline-primary btn-sm"
                     data-bs-toggle="modal"
-                    data-bs-target="#AddNote"
+                    data-bs-target="#EditNote"
                     data-bs-header="Updating a note # {{ note["id"] }}"
-                    data-bs-note_action="/notes/edit/{{ note["id"] }}"
+                    data-bs-note_id="{{ note["id"] }}"
                     data-bs-note_title="{{ note["header"] }}"
                     data-bs-note_content="{{ note["content"] }}"
                     data-bs-note_tags="{{ note["tag_list"] }}"
@@ -101,35 +181,13 @@
               <span class="btn-label"><i class="fa fa-edit"></i></span></button>
           </td>
           <td>
-            <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
-                    data-bs-target="#delete_note_{{ note['id'] }}">
-              <span class="btn-label"><i class="fa fa-trash"></i></span></button>
-
-            <!-- Modal 3 for deleting a note -->
-            <div class="modal fade" id="delete_note_{{ note["id"] }}" tabindex="-1" aria-labelledby="basicModalLabel"
-                 aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="basicModalLabel">Deleting a note {{ note["id"] }}</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  {#                  <form action="{{url_for('notes/delete', note_id=row['id'])}}" method="post">#}
-                  <div class="modal-body">
-                    <label class="col-xs-2 control-label">Do you want to
-                      <span style="font-weight:bold;color:red">delete</span> a note ?
-                    </label>
-                  </div>
-                  <div class="modal-footer">
-                    <form action="/notes/delete/{{ note["id"] }}" method="post">
-                      <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <!-- End Modal 3-->
+            <button type="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#DeleteNote"
+                    data-bs-header="Deleting a note # {{ note["id"] }}"
+                    data-bs-note_id="{{ note["id"] }}"
+            >
+            <span class="btn-label"><i class="fa fa-trash"></i></span></button>
           </td>
         </tr>
       {% endfor %}
@@ -138,31 +196,77 @@
   </div>
 
   <script>
-      const exampleModal = document.getElementById("AddNote")
-      exampleModal.addEventListener("show.bs.modal", event => {
+      const updateNote = document.getElementById("EditNote")
+
+      updateNote.addEventListener("show.bs.modal", event => {
           // Button that triggered the modal
           const button = event.relatedTarget
 
-          const noteAction = button.getAttribute("data-bs-note_action")
-          const formAction = exampleModal.querySelector('#form_action')
-          formAction.setAttribute("action", noteAction)
+          const noteId = button.getAttribute("data-bs-note_id")
+          const formAction = updateNote.querySelector('#form_action')
+          formAction.setAttribute("action", "/notes/edit/" + noteId)
 
           const formHeader = button.getAttribute("data-bs-header")
-          const modalHeader = exampleModal.querySelector(".modal-title")
+          const modalHeader = updateNote.querySelector(".modal-title")
           modalHeader.textContent = formHeader
 
           const noteTitle = button.getAttribute("data-bs-note_title")
-          const modalTitle = exampleModal.querySelector("#header")
+          const modalTitle = updateNote.querySelector("#header")
           modalTitle.value = noteTitle
 
+          modalTitle.classList.remove("is-invalid")
+          modalTitle.classList.add("is-valid")
+
           const noteContent = button.getAttribute("data-bs-note_content")
-          const modalContent = exampleModal.querySelector("#content")
+          const modalContent = updateNote.querySelector("#content")
           modalContent.value = noteContent
 
           const noteTags = button.getAttribute("data-bs-note_tags")
-          const modalTags = exampleModal.querySelector("#tags")
+          const modalTags = updateNote.querySelector("#tags")
           modalTags.value = noteTags
+      })
+
+      const deleteNote = document.getElementById("DeleteNote")
+      deleteNote.addEventListener("show.bs.modal", event => {
+          const button = event.relatedTarget
+
+          const noteId = button.getAttribute("data-bs-note_id")
+          const formAction = deleteNote.querySelector('#form_action')
+          formAction.setAttribute("action", "/notes/delete/" + noteId)
+
+          const formHeader = button.getAttribute("data-bs-header")
+          const modalHeader = deleteNote.querySelector(".modal-title")
+          modalHeader.textContent = formHeader
       })
   </script>
 
+  <script>
+      (() => {
+          'use strict'
+
+          const forms = document.querySelectorAll('.needs-validation')
+
+          Array.from(forms).forEach(form => {
+              form.addEventListener('submit', event => {
+
+                  {#if (!form.checkValidity()) {#}
+                  if (SomeValidation()) {
+                      event.preventDefault()
+                      event.stopPropagation()
+                  }
+
+                  form.classList.add('was-validated')
+              }, false)
+          })
+      })()
+
+  function SomeValidation(){
+      const foo = document.getElementById("header")
+      foo.classList.add("is-invalid")
+      foo.classList.remove("is-valid")
+
+      return true
+  }
+
+  </script>
 {% endblock %}

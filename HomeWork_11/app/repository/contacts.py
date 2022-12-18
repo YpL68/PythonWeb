@@ -1,10 +1,7 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 
-from database.db_models import Contact, Phone, DATE_FORMAT
-from function import format_phone_num
-
-from database.db import session_scope
+from app.db_models import Contact, Phone
 
 
 def get_contact_data_view(session: Session, cnt_id) -> dict:
@@ -16,18 +13,6 @@ def get_contact_data_view(session: Session, cnt_id) -> dict:
         if not contact:
             raise ValueError(f"Contact by id {cnt_id} not found.")
         return contact.data_view
-
-
-def contact_data_view_to_list(data_view: dict) -> list:
-    return [
-        str(data_view["id"]),
-        data_view["first_name"],
-        data_view["last_name"] if data_view["last_name"] else "",
-        data_view["email"] if data_view["email"] else "",
-        data_view["birthday"].strftime(DATE_FORMAT) if data_view["birthday"] else "",
-        data_view["address"] if data_view["address"] else "",
-        ", ".join([format_phone_num(phone) for phone in data_view["phone_list"]])
-    ]
 
 
 def get_contacts(session: Session, filter_str: str = None) -> list:
@@ -44,10 +29,7 @@ def get_contacts(session: Session, filter_str: str = None) -> list:
     else:
         contacts = session.query(Contact).all()
     if contacts:
-        out_list.append([key for key in contacts[0].data_view])
-        out_list.extend([contact_data_view_to_list(contact.data_view) for contact in contacts])
-
-    session.commit()
+        out_list.extend([contact.data_view for contact in contacts])
 
     return out_list
 
@@ -109,25 +91,3 @@ def contact_delete(session: Session, cnt_id: int):
     session.delete(contact)
     session.commit()
     return "Operation was successful"
-
-
-if __name__ == '__main__':
-    with session_scope() as session_:
-        try:
-            try:
-                print(get_contacts(session_, filter_str="51"))
-                # print(get_contacts(session_, filter_str="51"))
-                # data_view_ = get_contact_data_view(session_, 43)
-                # print(data_view_)
-                # data_view_["id"] = -1
-                # data_view_["first_name"] = data_view_["first_name"] + "1"
-                # data_view_["phone_list"] = ['380147711472', '389984587737']
-                #
-                # print(data_view_)
-                # print(contact_insert_or_update(session_, data_view_))
-            except (ValueError, KeyError, IndexError) as err:
-                print(err)
-        except Exception as err:
-            print(err)
-            if session_.in_transaction():
-                session_.rollback()
