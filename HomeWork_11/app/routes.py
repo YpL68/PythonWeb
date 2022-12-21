@@ -1,8 +1,6 @@
-from sqlalchemy.exc import IntegrityError
-
 from flask import render_template, request, redirect, url_for, flash
-from app import db
 from app.repository.notes import get_notes, note_delete, note_insert_or_update
+from app.repository.contacts import get_contacts, contact_delete, contact_insert_or_update
 
 from . import app
 
@@ -18,19 +16,27 @@ def index():
     return render_template("pages/index.html", title='Free Assistant!', auth='Yuri')
 
 
-@app.route('/notes', strict_slashes=False)
+@app.route('/notes', methods=['GET', 'POST'], strict_slashes=False)
 def notes():
-    notes_ = get_notes(db.session, filter_str="")
-    return render_template('pages/notes.html', title='Notes', notes=notes_)
-    # return render_template('pages/table.html')
+    notes_ = []
+
+    if request.method == 'POST':
+        filter_str = request.form.get("filter_str")
+    else:
+        filter_str = ""
+
+    try:
+        notes_ = get_notes(filter_str=filter_str)
+    except ValueError as err:
+        flash(str(err), "danger")
+
+    return render_template('pages/notes.html', title='Notes',
+                           notes=notes_, filter_str=filter_str)
 
 
 @app.route('/notes/delete/<int:note_id>', methods=['POST'], strict_slashes=False)
 def delete_note(note_id):
-    try:
-        result = note_delete(db.session, note_id), "success"
-    except (ValueError, KeyError, IndexError, IntegrityError) as err:
-        result = err, "danger"
+    result = note_delete(note_id)
     if result:
         flash(*result)
     return redirect(url_for("notes"))
@@ -38,23 +44,55 @@ def delete_note(note_id):
 
 @app.route('/notes/edit/<int:note_id>', methods=['POST'], strict_slashes=False)
 def edit_note(note_id):
-    tags_str = request.form.get("tags")
-    tag_list = list(filter(lambda x: x != "", tags_str.lower().split(",")))
-
     data_view = {
         "id": note_id if note_id else -1,
         "header": request.form.get("header"),
         "content": request.form.get("content"),
-        "tag_list": [tag.strip() for tag in tag_list]}
+        "tag_list": request.form.get("tags")}
 
-    try:
-        result = str(note_insert_or_update(db.session, data_view)), "success"
-    except (ValueError, KeyError, IndexError, IntegrityError) as err:
-        db.session.rollback()
-        result = str(err), "danger"
+    result = note_insert_or_update(data_view)
     if result:
         flash(*result)
+
     return redirect(url_for("notes"))
 
 
+@app.route('/contacts', methods=['GET', 'POST'], strict_slashes=False)
+def contacts():
+    contacts_ = []
+    if request.method == 'POST':
+        filter_str = request.form.get("filter_str")
+    else:
+        filter_str = ""
 
+    try:
+        contacts_ = get_contacts(filter_str=filter_str)
+    except ValueError as err:
+        flash(str(err), "danger")
+    return render_template('pages/contacts.html', title='Contacts',
+                           contacts=contacts_, filter_str=filter_str)
+
+
+@app.route('/contacts/delete/<int:cnt_id>', methods=['POST'], strict_slashes=False)
+def delete_contact(cnt_id):
+    result = contact_delete(cnt_id)
+    if result:
+        flash(*result)
+    return redirect(url_for("contacts"))
+
+
+@app.route('/contacts/edit/<int:cnt_id>', methods=['POST'], strict_slashes=False)
+def edit_contact(cnt_id):
+    data_view = {
+        "id": cnt_id if cnt_id else -1,
+        "first_name": request.form.get("first_name"),
+        "last_name": request.form.get("last_name"),
+        "birthday": request.form.get("birthday"),
+        "email": request.form.get("email"),
+        "address": request.form.get("address"),
+        "phone_list": request.form.get("phones")}
+
+    result = contact_insert_or_update(data_view)
+    if result:
+        flash(*result)
+    return redirect(url_for("contacts"))
