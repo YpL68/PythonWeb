@@ -5,8 +5,9 @@ from sqlalchemy.sql.functions import now
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from app import db
+from app.constants import DATE_FORMAT
+from app.function import format_phone_num
 
-DATE_FORMAT = "%d.%m.%Y"
 
 notes_tags = db.Table(
     "notes_tags",
@@ -40,7 +41,7 @@ class Contact(BaseModel):
 
     @hybrid_property
     def full_name(self):
-        return self.first_name + " " + self.last_name
+        return self.first_name + (f" {self.last_name}" if self.last_name else "")
 
     email = db.Column(db.String(64), unique=True)
     birthday = db.Column(DateTime)
@@ -51,12 +52,12 @@ class Contact(BaseModel):
     def data_view(self) -> dict:
         return {"id": self.id,
                 "first_name": self.first_name,
-                "last_name": self.last_name,
+                "last_name": self.last_name if self.last_name else "",
                 "full_name": self.full_name,
-                "email": self.email,
-                "birthday": self.birthday,
-                "address": self.address,
-                "phone_list": ", ".join([phone.phone_num for phone in self.phone_list])}
+                "email": self.email if self.email else "",
+                "birthday": self.birthday.strftime(DATE_FORMAT) if self.birthday else "",
+                "address": self.address if self.address else "",
+                "phone_list": ", ".join([format_phone_num(phone.phone_num) for phone in self.phone_list])}
 
 
 class Phone(BaseModel):
