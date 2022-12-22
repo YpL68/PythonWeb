@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="container">
+      <h1>{{ title }}</h1>
+
+      <nav class="navbar">
+        <div class="d-flex justify-content-start">
+          <form class="d-flex" action="/contacts/" method="post">
+            <input class="form-control me-2" id="filter_str" type="search" name="filter_str"
+                   placeholder="Search" aria-label="Search" value={{ filter_str }}>
+            <button class="btn btn-outline-success" type="submit">Refresh</button>
+          </form>
+        </div>
+
+        <div class='d-flex justify-content-end'>
+           <button type="button" class="btn btn-outline-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#EditContact"
+                  data-bs-cnt_id="0"
+                  data-bs-cnt_first_name=""
+                  data-bs-cnt_last_name=""
+                  data-bs-cnt_birthday=""
+                  data-bs-cnt_email=""
+                  data-bs-cnt_phones=""
+                  data-bs-cnt_address=""
+          >
+            Add contact
+          </button>
+        </div>
+      </nav>
+
+    </div>
+    <!-- Modal 1 for updating a contact -->
+    <div class="modal fade" id="EditContact" tabindex="-1" aria-labelledby="EditContactLabel" aria-hidden="true"
+      data-bs-note_id="0">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="EditContactLabel">Adding a contact</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form class="needs-validation" id="form_action" action="/contacts/edit/0" method="post" novalidate>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <label for="first_name" class="control-label"><span style="font-weight:bold">First name</span></label>
+                  <input type="text" class="form-control" id="first_name" name="first_name" autocomplete="off"
+                         required value="">
+                  <div class="invalid-feedback">
+                    Enter a first name
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <label for="last_name" class="control-label"><span style="font-weight:bold">Last name</span></label>
+                  <input type="text" class="form-control" id="last_name" name="last_name" autocomplete="off" value="">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <label for="birthday" class="control-label"><span style="font-weight:bold">Birthday</span></label>
+                  <input type="date" class="form-control" id="birthday" name="birthday" value="">
+                </div>
+                <div class="col-md-8">
+                  <label for="email" class="control-label"><span style="font-weight:bold">Email</span></label>
+                  <input type="email" class="form-control" id="email" name="email" autocomplete="off" value="">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <label for="phones" class="control-label"><span style="font-weight:bold">Phones</span></label>
+                  <input type="text" class="form-control" id="phones" name="phones" autocomplete="off" value="">
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <label for="address" class="control-label"><span style="font-weight:bold">Address</span></label>
+                  <input type="text" class="form-control" id="address" name="address" autocomplete="off" value="">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>    <!-- end Modal 1 -->
+
+    <!-- Modal 2 for deleting a note -->
+    <div class="modal fade" id="DeleteContact" tabindex="-1" aria-labelledby="basicModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="basicModalLabel">Deleting a contact</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label class="col-xs-2 control-label">Do you want to
+              <span style="font-weight:bold;color:red">delete</span> a contact ?
+            </label>
+          </div>
+          <div class="modal-footer">
+            <form id="form_action" action="/contacts/delete/0" method="post">
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Modal 2-->
+
+  </div>
+  <div class="container mb-3 mt-2">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table class="table table-bordered table-striped" id="ContactsTable">
+      <thead class="table-dark">
+      <tr>
+        <th style="width: 5%">Id</th>
+        <th style="width: 25%">Full name</th>
+        <th style="width: 10%">Birthday</th>
+        <th style="width: 25%">Email</th>
+        <th style="width: 30%">Phones</th>
+        <th style="width: 5%" colspan="2">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for cnt in contacts %}
+        <tr>
+          <td class="text-end">{{ cnt["id"] }}</td>
+          <td class="text-start">{{ cnt["full_name"] }}</td>
+          <td class="text-start">{{ cnt["birthday"] }}</td>
+          <td class="text-start">{{ cnt["email"] }}</td>
+          <td class="text-start">{{ cnt["phone_list"] }}</td>
+          <td>
+            <button type="button" class="btn btn-outline-primary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#EditContact"
+                    data-bs-cnt_id="{{ cnt["id"] }}"
+                    data-bs-cnt_first_name="{{ cnt["first_name"] }}"
+                    data-bs-cnt_last_name="{{ cnt["last_name"] }}"
+                    data-bs-cnt_birthday="{{ cnt["birthday"] }}"
+                    data-bs-cnt_email="{{ cnt["email"] }}"
+                    data-bs-cnt_phones="{{ cnt["phone_list"] }}"
+                    data-bs-cnt_address="{{ cnt["address"] }}"
+            >
+              <span class="btn-label"><i class="fa fa-edit"></i></span></button>
+          </td>
+          <td>
+            <button type="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#DeleteContact"
+                    data-bs-cnt_id="{{ cnt["id"] }}"
+            >
+            <span class="btn-label"><i class="fa fa-trash"></i></span></button>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+      const updateContact = document.getElementById("EditContact")
+
+      updateContact.addEventListener("show.bs.modal", event => {
+          const button = event.relatedTarget
+
+          const cntId = button.getAttribute("data-bs-cnt_id")
+          const formAction = updateContact.querySelector('#form_action')
+          formAction.setAttribute("action", "/contacts/edit/" + cntId)
+
+          const modalHeader = updateContact.querySelector(".modal-title")
+          if(cntId === "0")
+            modalHeader.textContent = "Adding a contact"
+          else
+            modalHeader.textContent = "Updating a contact # " + cntId
+
+          const modalFirstName = updateContact.querySelector("#first_name")
+          modalFirstName.value = button.getAttribute("data-bs-cnt_first_name")
+
+          const modalLastName = updateContact.querySelector("#last_name")
+          modalLastName.value = button.getAttribute("data-bs-cnt_last_name")
+
+          const Birthday = button.getAttribute("data-bs-cnt_birthday").split(".").reverse().join("-");
+          const modalBirthday = updateContact.querySelector("#birthday")
+          modalBirthday.value = Birthday
+
+          const modalEmail = updateContact.querySelector("#email")
+          modalEmail.value = button.getAttribute("data-bs-cnt_email")
+
+          const modalPhones = updateContact.querySelector("#phones")
+          modalPhones.value = button.getAttribute("data-bs-cnt_phones")
+
+          const modalAddress = updateContact.querySelector("#address")
+          modalAddress.value = button.getAttribute("data-bs-cnt_address")
+      })
+
+      const deleteContact = document.getElementById("DeleteContact")
+      deleteContact.addEventListener("show.bs.modal", event => {
+          const button = event.relatedTarget
+
+          const cntId = button.getAttribute("data-bs-cnt_id")
+          const formAction = deleteContact.querySelector('#form_action')
+          formAction.setAttribute("action", "/contacts/delete/" + cntId)
+
+          const modalHeader = deleteContact.querySelector(".modal-title")
+          modalHeader.textContent = "Deleting a contact # " + cntId
+      })
+  </script>
+
+  <script>
+      (() => {
+          'use strict'
+
+          const forms = document.querySelectorAll('.needs-validation')
+
+          Array.from(forms).forEach(form => {
+              form.addEventListener('submit', event => {
+                  {# Освою bootstrap и js - сделаю кастомную валидацию #}
+                  if (!form.checkValidity()) {
+                      event.preventDefault()
+                      event.stopPropagation()
+                  }
+
+                  form.classList.add('was-validated')
+              }, false)
+          })
+      })()
+  </script>
+{% endblock %}
