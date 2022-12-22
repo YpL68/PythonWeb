@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="container">
+      <h1>{{ title }}</h1>
+
+      <nav class="navbar">
+        <div class="d-flex justify-content-start">
+          <form class="d-flex" action="/notes/" method="post">
+            <input class="form-control me-2" id="filter_str" type="search" name="filter_str"
+                   placeholder="Search" aria-label="Search" value={{ filter_str }}>
+            <button class="btn btn-outline-success" type="submit">Refresh</button>
+          </form>
+        </div>
+
+        <div class='d-flex justify-content-end'>
+           <button type="button" class="btn btn-outline-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#EditNote"
+                  data-bs-note_id="0"
+                  data-bs-header="Adding a note"
+                  data-bs-note_title=""
+                  data-bs-note_content=""
+                  data-bs-note_tags=""
+          >
+            Add note
+          </button>
+        </div>
+      </nav>
+
+    </div>
+    <!-- Modal 1 for updating a note -->
+    <div class="modal fade" id="EditNote" tabindex="-1" aria-labelledby="EditNoteLabel" aria-hidden="true"
+      data-bs-note_id="0">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="EditNoteLabel">Adding a note</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form class="needs-validation" id="form_action" action="/notes/edit/0" method="post" novalidate>
+            <div class="modal-body">
+              <div class="form-group row">
+                <label for="header" class="col-xs-2 control-label">
+                  <span style="font-weight:bold">Title</span>
+                </label>
+                <div class="col-xs-10">
+                  <input type="text" id="header" class="form-control" name="header" autocomplete="off" required
+                         value=""/>
+                  <div class="invalid-feedback">
+                    Enter a note title
+                  </div>
+                </div>
+                <label for="content" class="col-xs-2 control-label">
+                  <span style="font-weight:bold">Content</span>
+                </label>
+                <div class="col-xs-10">
+                  <textarea id="content" class="form-control" rows="2" name="content"></textarea>
+                </div>
+                <label for="tags" class="col-xs-2 control-label">
+                  <span style="font-weight:bold">Tags</span>
+                </label>
+                <div class="col-xs-10">
+                  <input type="text" id="tags" class="form-control" name="tags" autocomplete="off"
+                         value=""/>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>    <!-- end Modal 1 -->
+
+    <!-- Modal 2 for deleting a note -->
+    <div class="modal fade" id="DeleteNote" tabindex="-1" aria-labelledby="basicModalLabel"
+         aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="basicModalLabel">Deleting a note</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <label class="col-xs-2 control-label">Do you want to
+              <span style="font-weight:bold;color:red">delete</span> a note ?
+            </label>
+          </div>
+          <div class="modal-footer">
+            <form id="form_action" action="/notes/delete/0" method="post">
+              <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- End Modal 2-->
+
+  </div>
+  <div class="container mb-3 mt-2">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <table class="table table-bordered table-striped" id="NotesTbl">
+      <thead class="table-dark">
+      <tr>
+        <th style="width: 5%">Id</th>
+        <th style="width: 20%">Title</th>
+        <th style="width: 50%">Content</th>
+        <th style="width: 20%">Tags</th>
+        <th style="width: 5%" colspan="2">Action</th>
+      </tr>
+      </thead>
+      <tbody>
+      {% for note in notes %}
+        <tr>
+          <td class="text-end">{{ note["id"] }}</td>
+          <td class="text-start">{{ note["header"] }}</td>
+          <td class="text-start">{{ note["content"] }}</td>
+          <td class="text-start">{{ note["tag_list"] }}</td>
+          <td>
+            <button type="button" class="btn btn-outline-primary btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#EditNote"
+                    data-bs-header="Updating a note # {{ note["id"] }}"
+                    data-bs-note_id="{{ note["id"] }}"
+                    data-bs-note_title="{{ note["header"] }}"
+                    data-bs-note_content="{{ note["content"] }}"
+                    data-bs-note_tags="{{ note["tag_list"] }}"
+            >
+              <span class="btn-label"><i class="fa fa-edit"></i></span></button>
+          </td>
+          <td>
+            <button type="button" class="btn btn-outline-danger btn-sm"
+                    data-bs-toggle="modal"
+                    data-bs-target="#DeleteNote"
+                    data-bs-header="Deleting a note # {{ note["id"] }}"
+                    data-bs-note_id="{{ note["id"] }}"
+            >
+            <span class="btn-label"><i class="fa fa-trash"></i></span></button>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+      const updateNote = document.getElementById("EditNote")
+      {#alert(updateNote)#}
+
+      updateNote.addEventListener("show.bs.modal", event => {
+          // Button that triggered the modal
+          const button = event.relatedTarget
+
+          const noteId = button.getAttribute("data-bs-note_id")
+          const formAction = updateNote.querySelector('#form_action')
+          formAction.setAttribute("action", "/notes/edit/" + noteId)
+
+          const modalHeader = updateNote.querySelector(".modal-title")
+          modalHeader.textContent = button.getAttribute("data-bs-header")
+
+          const modalTitle = updateNote.querySelector("#header")
+          modalTitle.value = button.getAttribute("data-bs-note_title")
+
+          const modalContent = updateNote.querySelector("#content")
+          modalContent.value = button.getAttribute("data-bs-note_content")
+
+          const modalTags = updateNote.querySelector("#tags")
+          modalTags.value = button.getAttribute("data-bs-note_tags")
+      })
+
+      const deleteNote = document.getElementById("DeleteNote")
+      deleteNote.addEventListener("show.bs.modal", event => {
+          const button = event.relatedTarget
+
+          const noteId = button.getAttribute("data-bs-note_id")
+          const formAction = deleteNote.querySelector('#form_action')
+          formAction.setAttribute("action", "/notes/delete/" + noteId)
+
+          const modalHeader = deleteNote.querySelector(".modal-title")
+          modalHeader.textContent = button.getAttribute("data-bs-header")
+      })
+  </script>
+
+  <script>
+      (() => {
+          'use strict'
+
+          const forms = document.querySelectorAll('.needs-validation')
+
+          Array.from(forms).forEach(form => {
+              form.addEventListener('submit', event => {
+
+                  if (!form.checkValidity()) {
+                      event.preventDefault()
+                      event.stopPropagation()
+                  }
+
+                  form.classList.add('was-validated')
+              }, false)
+          })
+      })()
+  </script>
+{% endblock %}
