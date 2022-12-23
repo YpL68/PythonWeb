@@ -1,5 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash
 from app.repository.contacts import get_contacts, contact_delete, contact_insert_or_update
+from app.repository.notes import get_notes, note_delete, note_insert_or_update
 
 from . import app
 
@@ -15,47 +16,49 @@ def index():
     return render_template("pages/index.html", title='Free Assistant!', auth='Yuri')
 
 
-# @app.route('/notes', methods=['GET', 'POST'], strict_slashes=False)
-# def notes():
-#     notes_ = []
-#
-#     if request.method == 'POST':
-#         filter_str = request.form.get("filter_str")
-#     else:
-#         filter_str = ""
-#
-#     try:
-#         notes_ = get_notes(filter_str=filter_str)
-#     except ValueError as err:
-#         flash(str(err), "danger")
-#
-#     return render_template('pages/notes.html', title='Notes',
-#                            notes=notes_, filter_str=filter_str)
-#
-#
-# @app.route('/notes/delete/<int:note_id>', methods=['POST'], strict_slashes=False)
-# def delete_note(note_id):
-#     result = note_delete(note_id)
-#     if result:
-#         flash(*result)
-#     return redirect(url_for("notes"))
-#
-#
-# @app.route('/notes/edit/<int:note_id>', methods=['POST'], strict_slashes=False)
-# def edit_note(note_id):
-#     data_view = {
-#         "id": note_id if note_id else -1,
-#         "header": request.form.get("header"),
-#         "content": request.form.get("content"),
-#         "tag_list": request.form.get("tags")}
-#
-#     result = note_insert_or_update(data_view)
-#     if result:
-#         flash(*result)
-#
-#     return redirect(url_for("notes"))
-#
-#
+@app.route('/notes', methods=['GET', 'POST'], strict_slashes=False)
+def notes():
+    notes_ = []
+
+    if request.method == 'POST':
+        filter_str = request.form.get("filter_str")
+    else:
+        filter_str = ""
+
+    try:
+        notes_ = get_notes(filter_str=filter_str)
+    except ValueError as err:
+        flash(str(err), "danger")
+
+    print(notes)
+
+    return render_template('pages/notes.html', title='Notes',
+                           notes=notes_, filter_str=filter_str)
+
+
+@app.route('/notes/delete/<note_id>', methods=['POST'], strict_slashes=False)
+def delete_note(note_id):
+    result = note_delete(note_id)
+    if result:
+        flash(*result)
+    return redirect(url_for("notes"))
+
+
+@app.route('/notes/edit/<note_id>', methods=['POST'], strict_slashes=False)
+def edit_note(note_id):
+    data_view = {
+        "id": note_id if note_id else -1,
+        "header": request.form.get("header"),
+        "content": request.form.get("content"),
+        "tag_list": request.form.get("tags")}
+
+    result = note_insert_or_update(data_view)
+    if result:
+        flash(*result)
+
+    return redirect(url_for("notes"))
+
+
 @app.route('/contacts', methods=['GET', 'POST'], strict_slashes=False)
 def contacts():
     contacts_ = []

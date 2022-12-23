@@ -10,9 +10,9 @@ def get_contacts(filter_str: str = None) -> list:
     try:
         if filter_str:
             contacts = Contact.objects(
-                Q(first_name__contains=f"{filter_str}") |
-                Q(last_name__contains=f"{filter_str}") |
-                Q(phones__contains=f"{filter_str}")).order_by("first_name")
+                Q(first_name__icontains=f"{filter_str}") |
+                Q(last_name__icontains=f"{filter_str}") |
+                Q(phones__icontains=f"{filter_str}")).order_by("first_name")
         else:
             contacts = Contact.objects().order_by("first_name")
         if contacts:
@@ -29,7 +29,7 @@ def contact_insert_or_update(data_view: dict) -> tuple:
         if data_view["id"] != "0":
             contact = Contact.objects.get(id=data_view["id"])
             if not contact:
-                raise ValueError(f"Contact by id {data_view['id']} not found.")
+                raise ValueError(f"No contact was found.")
         else:
             contact = Contact()
 
