@@ -1,5 +1,7 @@
 from mongoengine import *
 
+from app import cache
+
 from app.db_models import Note
 
 
@@ -20,11 +22,16 @@ def get_notes(filter_str: str = None) -> list:
     return out_list
 
 
+@cache
+def get_note(note_id) -> Note:
+    return Note.objects.get(id=note_id)
+
+
 def note_insert_or_update(data_view: dict):
     result = ("Operation was successful", "success")
     try:
         if data_view["id"] != "0":
-            note = Note.objects.get(id=data_view["id"])
+            note = get_note(data_view["id"])
             if not note:
                 raise ValueError("No note was found")
         else:
@@ -44,7 +51,7 @@ def note_insert_or_update(data_view: dict):
 def note_delete(note_id: str):
     result = ("Operation was successful", "success")
     try:
-        note = Note.objects.get(id=note_id)
+        note = get_note(note_id)
         if not note:
             raise ValueError(f"Note by id {note_id} not found.")
         note.delete()
