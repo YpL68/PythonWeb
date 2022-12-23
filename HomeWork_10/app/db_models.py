@@ -27,7 +27,7 @@ class Contact(db.Document):
 
     first_name = db.StringField(max_length=64, required=True)
     last_name = db.StringField(max_length=64)
-    email = db.StringField(max_length=64, unique=True)
+    email = db.StringField(max_length=64, required=True, unique=True)
     birthday = db.DateField()
     address = db.StringField(max_length=128)
     phones = db.ListField(db.StringField(min_lenght=12, max_length=12))
