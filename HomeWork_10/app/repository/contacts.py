@@ -1,6 +1,8 @@
 from datetime import datetime
 from mongoengine import *
 
+from app import cache
+
 from app.db_models import Contact
 from app.function import sanitize_phone_num, email_validate
 
@@ -23,11 +25,16 @@ def get_contacts(filter_str: str = None) -> list:
     return out_list
 
 
+@cache
+def get_contact(cnt_id) -> Contact:
+    return Contact.objects.get(id=cnt_id)
+
+
 def contact_insert_or_update(data_view: dict) -> tuple:
     result = ("Operation was successful", "success")
     try:
         if data_view["id"] != "0":
-            contact = Contact.objects.get(id=data_view["id"])
+            contact = get_contact(data_view["id"])
             if not contact:
                 raise ValueError(f"No contact was found.")
         else:
@@ -53,7 +60,7 @@ def contact_insert_or_update(data_view: dict) -> tuple:
 def contact_delete(cnt_id: str):
     result = ("Operation was successful", "success")
     try:
-        contact = Contact.objects.get(id=cnt_id)
+        contact = get_contact(cnt_id)
         if not contact:
             raise ValueError(f"Contact by id {cnt_id} not found.")
 
