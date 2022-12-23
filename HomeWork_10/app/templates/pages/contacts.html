@@ -42,7 +42,7 @@
             <h1 class="modal-title fs-5" id="EditContactLabel">Adding a contact</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form class="needs-validation" id="form_action" action="/contacts/edit/0" method="post" novalidate>
+          <form class="needs-validation" id="form_action_update" action="/contacts/edit/0" method="post" novalidate>
             <div class="modal-body">
               <div class="row">
                 <div class="col-md-6">
@@ -100,12 +100,12 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <label class="col-xs-2 control-label">Do you want to
+            <label class="col-xs-2 control-label" id="query_text">Do you want to
               <span style="font-weight:bold;color:red">delete</span> a contact ?
             </label>
           </div>
           <div class="modal-footer">
-            <form id="form_action" action="/contacts/delete/0" method="post">
+            <form id="form_action_delete" action="/contacts/delete/0" method="post">
               <button type="submit" class="btn btn-danger">Delete</button>
             </form>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -131,8 +131,7 @@
     <table class="table table-bordered table-striped" id="ContactsTable">
       <thead class="table-dark">
       <tr>
-        <th style="width: 5%">Id</th>
-        <th style="width: 25%">Full name</th>
+        <th style="width: 30%">Full name</th>
         <th style="width: 10%">Birthday</th>
         <th style="width: 25%">Email</th>
         <th style="width: 30%">Phones</th>
@@ -142,7 +141,6 @@
       <tbody>
       {% for cnt in contacts %}
         <tr>
-          <td class="text-end">{{ cnt["id"] }}</td>
           <td class="text-start">{{ cnt["full_name"] }}</td>
           <td class="text-start">{{ cnt["birthday"] }}</td>
           <td class="text-start">{{ cnt["email"] }}</td>
@@ -151,13 +149,13 @@
             <button type="button" class="btn btn-outline-primary btn-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#EditContact"
-                    data-bs-cnt_id="{{ cnt["id"] }}"
-                    data-bs-cnt_first_name="{{ cnt["first_name"] }}"
-                    data-bs-cnt_last_name="{{ cnt["last_name"] }}"
-                    data-bs-cnt_birthday="{{ cnt["birthday"] }}"
-                    data-bs-cnt_email="{{ cnt["email"] }}"
-                    data-bs-cnt_phones="{{ cnt["phone_list"] }}"
-                    data-bs-cnt_address="{{ cnt["address"] }}"
+                    data-bs-cnt_id="{{ cnt['id'] }}"
+                    data-bs-cnt_first_name="{{ cnt['first_name'] }}"
+                    data-bs-cnt_last_name="{{ cnt['last_name'] }}"
+                    data-bs-cnt_birthday="{{ cnt['birthday'] }}"
+                    data-bs-cnt_email="{{ cnt['email'] }}"
+                    data-bs-cnt_phones="{{ cnt['phone_list'] }}"
+                    data-bs-cnt_address="{{ cnt['address'] }}"
             >
               <span class="btn-label"><i class="fa fa-edit"></i></span></button>
           </td>
@@ -165,7 +163,8 @@
             <button type="button" class="btn btn-outline-danger btn-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#DeleteContact"
-                    data-bs-cnt_id="{{ cnt["id"] }}"
+                    data-bs-cnt_id="{{ cnt['id'] }}"
+                    data-bs-cnt_full_name="{{ cnt['full_name'] }}"
             >
             <span class="btn-label"><i class="fa fa-trash"></i></span></button>
           </td>
@@ -182,14 +181,14 @@
           const button = event.relatedTarget
 
           const cntId = button.getAttribute("data-bs-cnt_id")
-          const formAction = updateContact.querySelector('#form_action')
+          const formAction = updateContact.querySelector('#form_action_update')
           formAction.setAttribute("action", "/contacts/edit/" + cntId)
 
           const modalHeader = updateContact.querySelector(".modal-title")
           if(cntId === "0")
             modalHeader.textContent = "Adding a contact"
           else
-            modalHeader.textContent = "Updating a contact # " + cntId
+            modalHeader.textContent = "Updating a contact"
 
           const modalFirstName = updateContact.querySelector("#first_name")
           modalFirstName.value = button.getAttribute("data-bs-cnt_first_name")
@@ -216,11 +215,11 @@
           const button = event.relatedTarget
 
           const cntId = button.getAttribute("data-bs-cnt_id")
-          const formAction = deleteContact.querySelector('#form_action')
+          const formAction = deleteContact.querySelector('#form_action_delete')
           formAction.setAttribute("action", "/contacts/delete/" + cntId)
 
           const modalHeader = deleteContact.querySelector(".modal-title")
-          modalHeader.textContent = "Deleting a contact # " + cntId
+          modalHeader.textContent = button.getAttribute("data-bs-cnt_full_name")
       })
   </script>
 
@@ -232,7 +231,6 @@
 
           Array.from(forms).forEach(form => {
               form.addEventListener('submit', event => {
-                  {# Освою bootstrap и js - сделаю кастомную валидацию #}
                   if (!form.checkValidity()) {
                       event.preventDefault()
                       event.stopPropagation()

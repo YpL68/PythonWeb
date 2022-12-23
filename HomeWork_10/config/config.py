@@ -6,5 +6,6 @@ config = dotenv_values(".env")
 
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = "sqlite:///" + str(BASE_DIR / 'database' / 'assist.db')
+    MONGODB_SETTINGS = {"host": "mongodb://localhost/assist"}
     SECRET_KEY = config['SECRET_KEY']
+

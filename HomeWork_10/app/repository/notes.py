@@ -1,7 +1,5 @@
-from sqlalchemy import or_
-
 from app import db
-from app.db_models import Note, NotesTags, Tag
+from app.db_models import Note
 
 
 def get_notes(filter_str: str = None) -> list:
