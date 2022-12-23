@@ -40,7 +40,7 @@
             <h1 class="modal-title fs-5" id="EditNoteLabel">Adding a note</h1>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form class="needs-validation" id="form_action" action="/notes/edit/0" method="post" novalidate>
+          <form class="needs-validation" id="form_action_update" action="/notes/edit/0" method="post" novalidate>
             <div class="modal-body">
               <div class="form-group row">
                 <label for="header" class="col-xs-2 control-label">
@@ -92,7 +92,7 @@
             </label>
           </div>
           <div class="modal-footer">
-            <form id="form_action" action="/notes/delete/0" method="post">
+            <form id="form_action_delete" action="/notes/delete/0" method="post">
               <button type="submit" class="btn btn-danger">Delete</button>
             </form>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -118,8 +118,7 @@
     <table class="table table-bordered table-striped" id="NotesTbl">
       <thead class="table-dark">
       <tr>
-        <th style="width: 5%">Id</th>
-        <th style="width: 20%">Title</th>
+        <th style="width: 25%">Title</th>
         <th style="width: 50%">Content</th>
         <th style="width: 20%">Tags</th>
         <th style="width: 5%" colspan="2">Action</th>
@@ -128,7 +127,6 @@
       <tbody>
       {% for note in notes %}
         <tr>
-          <td class="text-end">{{ note["id"] }}</td>
           <td class="text-start">{{ note["header"] }}</td>
           <td class="text-start">{{ note["content"] }}</td>
           <td class="text-start">{{ note["tag_list"] }}</td>
@@ -136,11 +134,11 @@
             <button type="button" class="btn btn-outline-primary btn-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#EditNote"
-                    data-bs-header="Updating a note # {{ note["id"] }}"
-                    data-bs-note_id="{{ note["id"] }}"
-                    data-bs-note_title="{{ note["header"] }}"
-                    data-bs-note_content="{{ note["content"] }}"
-                    data-bs-note_tags="{{ note["tag_list"] }}"
+                    data-bs-header="Updating a note"
+                    data-bs-note_id="{{ note['id'] }}"
+                    data-bs-note_title="{{ note['header'] }}"
+                    data-bs-note_content="{{ note['content'] }}"
+                    data-bs-note_tags="{{ note['tag_list'] }}"
             >
               <span class="btn-label"><i class="fa fa-edit"></i></span></button>
           </td>
@@ -148,8 +146,8 @@
             <button type="button" class="btn btn-outline-danger btn-sm"
                     data-bs-toggle="modal"
                     data-bs-target="#DeleteNote"
-                    data-bs-header="Deleting a note # {{ note["id"] }}"
-                    data-bs-note_id="{{ note["id"] }}"
+                    data-bs-header="{{ note['header'] }}"
+                    data-bs-note_id="{{ note['id'] }}"
             >
             <span class="btn-label"><i class="fa fa-trash"></i></span></button>
           </td>
@@ -161,14 +159,13 @@
 
   <script>
       const updateNote = document.getElementById("EditNote")
-      {#alert(updateNote)#}
 
       updateNote.addEventListener("show.bs.modal", event => {
           // Button that triggered the modal
           const button = event.relatedTarget
 
           const noteId = button.getAttribute("data-bs-note_id")
-          const formAction = updateNote.querySelector('#form_action')
+          const formAction = updateNote.querySelector('#form_action_update')
           formAction.setAttribute("action", "/notes/edit/" + noteId)
 
           const modalHeader = updateNote.querySelector(".modal-title")
@@ -189,7 +186,7 @@
           const button = event.relatedTarget
 
           const noteId = button.getAttribute("data-bs-note_id")
-          const formAction = deleteNote.querySelector('#form_action')
+          const formAction = deleteNote.querySelector('#form_action_delete')
           formAction.setAttribute("action", "/notes/delete/" + noteId)
 
           const modalHeader = deleteNote.querySelector(".modal-title")

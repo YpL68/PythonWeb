@@ -1,5 +1,4 @@
 from datetime import datetime
-# from mongoengine import signals, queryset_manager, Q
 
 from app import db
 from app.constants import DATE_FORMAT
@@ -16,8 +15,7 @@ class Note(db.Document):
 
     @property
     def data_view(self) -> dict:
-        return {
-                "id": str(self.id),
+        return {"id": str(self.id),
                 "header": self.header,
                 "content": self.content if self.content else "",
                 "tag_list": ", ".join([tag for tag in self.tags])}
@@ -27,7 +25,6 @@ class Contact(db.Document):
     created_on = db.DateTimeField(default=datetime.now())
     updated_on = db.DateTimeField(default=datetime.now())
 
-    id_ = db.SequenceField()
     first_name = db.StringField(max_length=64, required=True)
     last_name = db.StringField(max_length=64)
     email = db.StringField(max_length=64, unique=True)

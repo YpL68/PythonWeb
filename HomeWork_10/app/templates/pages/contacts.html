@@ -219,7 +219,7 @@
           formAction.setAttribute("action", "/contacts/delete/" + cntId)
 
           const modalHeader = deleteContact.querySelector(".modal-title")
-          modalHeader.textContent = button.getAttribute("data-bs-cnt_full_name")
+          modalHeader.textContent = "Contact: " + button.getAttribute("data-bs-cnt_full_name")
       })
   </script>
 
