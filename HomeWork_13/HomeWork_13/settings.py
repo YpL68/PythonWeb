@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-cp5zf5jdru#q2vf9#4gae)b!9qen3s_lc@#@dh1+d#a84103g9'
+SECRET_KEY = 'django-insecure-@13cj!n5dfi4ox*ka+!macd+v9_=(28wmxh+$+^2@dg_8of*y0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'HomeWork_13.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'fin_assist',
+        'USER': 'postgres',
+        'PASSWORD': '13121312',
+        'HOST': '127.0.0.1',
+        'PORT': '5433'
     }
 }
 
