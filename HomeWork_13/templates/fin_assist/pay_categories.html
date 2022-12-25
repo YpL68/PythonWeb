@@ -10,30 +10,83 @@
   </div>
 
   <div class="container">
-    <div class="container">
-      <nav class="navbar">
-        <div class="d-flex justify-content-start">
-          <form class="d-flex" action="{% url 'fin_assist:pay_categories' %}" method="POST">
-            {% csrf_token %}
-            <input class="form-control me-2" id="filter_str" type="search" name="filter_str"
-                   placeholder="Search" aria-label="Search" value={{ filter_str }}>
-            <button class="btn btn-outline-success" type="submit">Refresh</button>
-          </form>
-        </div>
+    <div class="row">
+      <div class="col-sm-2"></div>
+      <div class="col-sm-8">
+        <nav class="navbar">
+          <div class="d-flex justify-content-start">
+            <form class="d-flex" action="{% url 'fin_assist:pay_categories' %}" method="POST">
+              {% csrf_token %}
+              <input class="form-control me-2" id="filter_str" type="search" name="filter_str"
+                     placeholder="Search" aria-label="Search" value={{ filter_str }}>
+              <button class="btn btn-outline-success" type="submit">Refresh</button>
+            </form>
+          </div>
 
-        <div class='d-flex justify-content-end'>
-           <button type="button" class="btn btn-outline-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#EditCategory"
-                  data-bs-header="Adding a category"
-                   data-bs-cat_id="333"
-                   data-bs-cat_name=""
-                  data-bs-cat_desc=""
-          >
-            Add category
-          </button>
-        </div>
-      </nav>
+          <div class='d-flex justify-content-end'>
+            <button type="button" class="btn btn-outline-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#EditCategory"
+                    data-bs-header="Adding a category"
+                    data-bs-cat_id="0"
+                    data-bs-cat_name=""
+                    data-bs-cat_desc=""
+            >
+              Add category
+            </button>
+          </div>
+        </nav>
+
+        {% if messages %}
+          {% for message in messages %}
+            <div class="alert alert-{{ message.extra_tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        <table class="table table-bordered table-striped" id="ContactsTable">
+          <thead class="table-dark">
+          <tr>
+            <th style="width: 10%">Id</th>
+            <th style="width: 30%">Name</th>
+            <th style="width: 50%">Description</th>
+            <th style="width: 10%" colspan="2">Action</th>
+          </tr>
+          </thead>
+          <tbody>
+            {% for cat in categories %}
+              <tr>
+                <td class="text-end">{{ cat.id }}</td>
+                <td class="text-start">{{ cat.name }}</td>
+                <td class="text-start">{{ cat.description }}</td>
+                <td>
+                  <button type="button" class="btn btn-outline-primary btn-sm"
+                          data-bs-toggle="modal"
+                          data-bs-target="#EditCategory"
+                          data-bs-header="Editing a category"
+                          data-bs-cat_id="{{ cat.id }}"
+                          data-bs-cat_name="{{ cat.name }}"
+                          data-bs-cat_desc="{{ cat.description }}"
+                  >
+                    <span class="btn-label"><i class="fa fa-edit"></i></span></button>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-outline-danger btn-sm"
+                          data-bs-toggle="modal"
+                          data-bs-target="#DeleteCategory"
+                          data-bs-header="{{ cat.name }}"
+                          data-bs-cat_id="{{ cat.id }}"
+                  >
+                    <span class="btn-label"><i class="fa fa-trash"></i></span></button>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="col-sm-2"></div>
     </div>
   </div>
 
@@ -77,30 +130,67 @@
   </div>
   <!-- end Modal 1 -->
 
-
-
+  <!-- Modal 2 for deleting a note -->
+  <div class="modal fade" id="DeleteCategory" tabindex="-1" aria-labelledby="basicModalLabel"
+       aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="basicModalLabel">Deleting a category</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <label class="col-xs-2 control-label">Do you want to
+            <span style="font-weight:bold;color:red">delete</span> a category ?
+          </label>
+        </div>
+        <div class="modal-footer">
+          <form id="form_action_delete" action="{% url 'fin_assist:delete_pay_categories' 0 %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Delete</button>
+          </form>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- End Modal 2-->
 
   <script>
-      const updateNote = document.getElementById("EditCategory")
+      const updateCategory = document.getElementById("EditCategory")
       {#alert(updateNote)#}
 
-      updateNote.addEventListener("show.bs.modal", event => {
+      updateCategory.addEventListener("show.bs.modal", event => {
           const button = event.relatedTarget
 
           const catId = button.getAttribute("data-bs-cat_id")
-          const formAction = updateNote.querySelector('#form_action_edit')
+          const formAction = updateCategory.querySelector('#form_action_edit')
           const action_str = "{% url 'fin_assist:edit_pay_categories' 0 %}".slice(0, -1) + catId
           formAction.setAttribute("action", action_str)
 
-          const modalHeader = updateNote.querySelector(".modal-title")
+          const modalHeader = updateCategory.querySelector(".modal-title")
           modalHeader.textContent = button.getAttribute("data-bs-header")
 
-          const modalName = updateNote.querySelector("#cat_name")
+          const modalName = updateCategory.querySelector("#cat_name")
           modalName.value = button.getAttribute("data-bs-cat_name")
 
-          const modalDesc = updateNote.querySelector("#cat_desc")
+          const modalDesc = updateCategory.querySelector("#cat_desc")
           modalDesc.value = button.getAttribute("data-bs-cat_desc")
       })
+
+      const deleteCategory = document.getElementById("DeleteCategory")
+      deleteCategory.addEventListener("show.bs.modal", event => {
+          const button = event.relatedTarget
+
+          const catId = button.getAttribute("data-bs-cat_id")
+          const formAction = deleteCategory.querySelector('#form_action_delete')
+          const action_str = "{% url 'fin_assist:delete_pay_categories' 0 %}".slice(0, -1) + catId
+          formAction.setAttribute("action", action_str)
+
+          const modalHeader = deleteCategory.querySelector(".modal-title")
+          modalHeader.textContent = button.getAttribute("data-bs-header")
+      })
+
   </script>
 
   <script>
