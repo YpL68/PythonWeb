@@ -1,11 +1,125 @@
 {% extends "fin_assist/base.html" %}
 {% block content %}
-  <div class="container pt-2">
+  <div class="container mt-2">
     <p
         class="d-flex flex-column align-items-center justify-content-center bg-secondary"
         style="height: 50px; color: #ffffff"
     >
-      <strong>Welcome to Pay categories</strong>
+      <strong>Categories</strong>
     </p>
   </div>
+
+  <div class="container">
+    <div class="container">
+      <nav class="navbar">
+        <div class="d-flex justify-content-start">
+          <form class="d-flex" action="{% url 'fin_assist:pay_categories' %}" method="POST">
+            {% csrf_token %}
+            <input class="form-control me-2" id="filter_str" type="search" name="filter_str"
+                   placeholder="Search" aria-label="Search" value={{ filter_str }}>
+            <button class="btn btn-outline-success" type="submit">Refresh</button>
+          </form>
+        </div>
+
+        <div class='d-flex justify-content-end'>
+           <button type="button" class="btn btn-outline-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#EditCategory"
+                  data-bs-header="Adding a category"
+                   data-bs-cat_id="333"
+                   data-bs-cat_name=""
+                  data-bs-cat_desc=""
+          >
+            Add category
+          </button>
+        </div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Modal 1 for updating a category -->
+  <div class="modal fade" id="EditCategory" tabindex="-1" aria-labelledby="EditCategoryLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="EditCategoryLabel">Adding a category</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form class="needs-validation" id="form_action_edit" action="{% url 'fin_assist:edit_pay_categories' 0 %}"
+              method="POST" novalidate>
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="cat_name" class="control-label">
+                <span style="font-weight:bold">Name</span>
+              </label>
+              <input type="text" id="cat_name" class="form-control" name="cat_name" autocomplete="off" required
+                     value=""/>
+              <div class="invalid-feedback">
+                Enter a category name
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="cat_desc" class="control-label">
+                <span style="font-weight:bold">Description</span>
+              </label>
+              <input type="text" id="cat_desc" class="form-control" name="cat_desc" autocomplete="off"
+                     value=""/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  <!-- end Modal 1 -->
+
+
+
+
+  <script>
+      const updateNote = document.getElementById("EditCategory")
+      {#alert(updateNote)#}
+
+      updateNote.addEventListener("show.bs.modal", event => {
+          const button = event.relatedTarget
+
+          const catId = button.getAttribute("data-bs-cat_id")
+          const formAction = updateNote.querySelector('#form_action_edit')
+          const action_str = "{% url 'fin_assist:edit_pay_categories' 0 %}".slice(0, -1) + catId
+          formAction.setAttribute("action", action_str)
+
+          const modalHeader = updateNote.querySelector(".modal-title")
+          modalHeader.textContent = button.getAttribute("data-bs-header")
+
+          const modalName = updateNote.querySelector("#cat_name")
+          modalName.value = button.getAttribute("data-bs-cat_name")
+
+          const modalDesc = updateNote.querySelector("#cat_desc")
+          modalDesc.value = button.getAttribute("data-bs-cat_desc")
+      })
+  </script>
+
+  <script>
+      (() => {
+          'use strict'
+
+          const forms = document.querySelectorAll('.needs-validation')
+
+          Array.from(forms).forEach(form => {
+              form.addEventListener('submit', event => {
+
+                  if (!form.checkValidity()) {
+                      event.preventDefault()
+                      event.stopPropagation()
+                  }
+
+                  form.classList.add('was-validated')
+              }, false)
+          })
+      })()
+  </script>
 {% endblock %}
